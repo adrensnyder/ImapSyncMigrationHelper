@@ -1,0 +1,4 @@
+Utente,AutoMapping
+utente1@dominio.it,true
+utente2@dominio.it,false
+utente3@dominio.it,true

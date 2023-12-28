@@ -1,0 +1,2 @@
+#orig			passorig	dest			passdest
+user1@domain.com	pass1		user1@domain.com	nopassrequired
