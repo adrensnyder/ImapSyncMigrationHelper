@@ -139,8 +139,7 @@ NOTE:
 If you want to migrate from 365 to 365, you can:
 
 - Try the functions included in the Exchange section for Tenant-to-Tenant migration. (I haven't had much luck, except with the Gmail Tenant to 365 function)
-- Generate the app, create the token with another name using mutt, changing only the jobname in the filename when requesting authorization, and start `./create_next_schedule.sh newjobname_token_auth`
-Now, in the main.conf file, change the variables TOKEN_ORIG and TOKEN_DEST.
+- Generate the app, create the token with another name using mutt, changing only the jobname in the filename when requesting authorization, and start `./create_next_schedule.sh newjobname_token_auth`. Now, in the main.conf file, change the variables TOKEN_ORIG and TOKEN_DEST.
 
 The password in mail_list for the 365 account isn't needed but must maintain the structure, so write something like "pass".
 
@@ -189,9 +188,8 @@ I have not tested this procedure with Gmail. You surely need to create an App an
 ## TODO
 NOTE: I program in my spare time but i will try to update those scripts asap.
 - Add more options to the Rules scripts (Like Subject)
-- Add language option for single account in sharebox|users creation/modification\
+- Add language option for single row and not the entire conversion in sharebox|users creation/modification\
 - Convert Alias|DistributionList|Permissions to use a single file with all the operations like Rules script
-Do similar things for Date, Time and Time Zone for the Sharebox
 
 ---
 Thanks to:\
