@@ -56,8 +56,8 @@ Start migration in a screen session using ImapSyncMigrationHelper.sh :)
 
 ### ListFolders
 Leaving LISTFOLDERS enabled will create a folder in the log with the \_listfolder tag. 
-ImapSync will only provide the list of folders in the origin and destination
-it is useful to find if there are any problems in connection/login/configuration or if some folders are not correctly translated
+ImapSync will only provide the list of folders in the origin and destination.
+It's useful to find if there are any problems in connection/login/configuration or if some folders are not correctly translated
 
 ### Check migration for errors
 Using the script check_migration.sh, you can check for some errors, usually, I find, in my experience, providing a summary of the migration status. 
