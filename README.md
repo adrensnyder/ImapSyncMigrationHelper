@@ -111,11 +111,12 @@ When requested, insert the tenant administrator account used for the migration a
 
 Log in to office.com with the tenant administrator account and paste it in the address bar of the browser. The next page will show an error because it will try to connect to a localhost URL
 
-Copy it and open another terminal on the Linux server you've requestd the token and type
+Copy it and open another terminal on the Linux server you've requested the token and type
 ```
 curl "TheLocalhostUrl"
 ```
-If successful, it will create the file jobname_token_auth
+If successful you can close the secondary terminal. The Authorize procedure with Mutt will create the file jobname_token_auth. 
+Inside there you will find the Token, the informatikn you inserted in creation phase and the expire date.
 
 Now run
 ```
