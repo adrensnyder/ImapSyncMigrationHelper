@@ -5,7 +5,7 @@ Migration has been tested to and from Microsoft 365.
 It has not been tested with GMAIL, and automation for creating the necessary App for access is also missing. 
 The token creation procedures are likely the same, but creating the required app for OAuth2 access needs verification.
 
-## Migration Preparation
+## Initial steps
 On a Linux server with at least Python 3.8 (Tested Redhat, Centos and Rocky), install ImapSync and update it to the latest version.
 
 Personally, I follow these steps:
