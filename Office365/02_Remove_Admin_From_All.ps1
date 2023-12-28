@@ -29,6 +29,7 @@ $admin = "admin@domain.com"
 
 Get-Mailbox | Select-Object UserPrincipalName | ForEach-Object {
 	if ( $admin -ne $($_.UserPrincipalName)) {
+		Write-Host "Removing permission for account $($_.UserPrincipalName)"
 		Remove-MailboxPermission -Identity $($_.UserPrincipalName) -User $admin -AccessRights $access -confirm:$false 
 	}
 }
