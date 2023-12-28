@@ -1,7 +1,7 @@
 # ImapSyncMigrationHelper
 The purpose of these tools is to assist in migrating a mail system using ImapSync.
 
-Migration has been tested to and from Microsoft 365.
+Migration has also been tested to and from Microsoft 365.
 It has not been tested with GMAIL, and automation for creating the necessary App for access is also missing. 
 The token creation procedures are likely the same, but creating the required app for OAuth2 access needs verification.
 
