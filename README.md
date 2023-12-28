@@ -154,29 +154,29 @@ Edit the $admin variable to remove the delegation from all mailboxes existing in
 - **02_import_mailbox_nolicense.ps1**\
 Populate the file 02_import_mailbox_nolicense.csv with data of new sharebox, room or equipment. Create new file for each type and rename the file like 02_import_mailbox_sharebox|room|equipment.csv
 Start the script with the filename as parameter you want to import and it will create them with max attachments size, language selected, and SendAs|SendOnBehalf enabled
+Usage: .\02_import_mailbox_nolicense.ps1 filename.csv
 - **02_user_settings.ps1**\
-This script need a file called users.csv that can be downloaded after the massive import in the Tenant Users list.
-You can create it manually with\
-```
-Username,Password
-user1@domain.com,password
-```
-Edit the $language variable
+Populate the file 02_user_settings.csv
 It will reset the password, change the attachments size and change the language
+Usage: .\02_user_settings.ps1 filename.csv
 - **03_Change_Domain.ps1**\
 Edit $orig_domain and $dest_domain variables. It will change the primary SMTP domain of all mailboxes
 - **99_CheckMailGuid.ps1** and **99_RetrieveGUIDtoCSV.ps1**\
 There scripts were created to cross check that the GUID used in some procedures match the email address
 - **Alias**\
 Add Aliases to an account
+Usage (Single): .\00_add_alias.ps1 mailbox@domain.com filename.csv
 - **DistributionList**\
 Create, if not exist, a Distribution List and add users to it
+Usage (Single): .\00_add_mail_lists.ps1 list@domain.com filename.csv
 - **Permissions**\
 Add delegated users to a sharebox
+Usage (Single): .\00_add_alias.ps1 mailbox@domain.com filename.csv
 - **Rules**\
 Create a path in the mailbox and a simple rule\
 NOTE: If using a system folder (Ex. Inbox) check that it exist in every account with the correct language or it will be created.
 If this appen you can move the subfolders created from the webmail to the correct folder and the rule will adapt itself
+Usage: .\00_add_rule.ps1 filename.csv
 
 ### GMAIL
 I have not tested this procedure with Gmail. You surely need to create an App and use mutt_oauth2 in a similar way as explained for 365. Probably the rest of the procedure will be the same.
