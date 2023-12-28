@@ -81,7 +81,9 @@ NOTE: I suggest to schedule the job only after a successful first migration
 
 ## oAuth2
 ### Microsoft 365
-It is possible to copy data by accessing Microsoft 365 mailboxes.
+It is possible to copy data by accessing Microsoft 365 mailboxes. 
+For all the scripts i'm using Powershell 5.1 Build 22621 Rev. 2506. Not tested with other versions
+
 Firstly, an administrator account with a license that includes the mailbox is required.
 Afterwards, you will need to create the App in the tenant. There is an automated procedure in the Office365 section.
 
