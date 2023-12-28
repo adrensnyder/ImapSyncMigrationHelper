@@ -139,15 +139,16 @@ The password in mail_list for the 365 account isn't needed but must maintain the
 
 #### Tenant and Structure Preparation 
 In the folder Office365, you will find some useful scripts that can be helpful to reduce the time needed to create the structure
+All the scripts, apart 00_CreateApp.ps1, request connection to the Tenant. You can use 01_Connection_Tenant.ps1 to do it done easy
 
 - **00_CreateApp.ps1**\
 This procedure will create the needed App that permit ImapSync to connect to 365. Only run it and use an account of the tenant with admin rights
-- **00_Add_Admin_To_All.ps1**\
-Edit the $admin variable to assign to it the delegation for all mailboxes existing in the tenant
-- **00_Remove_Admin_From_All.ps1**\
-Edit the $admin variable to remove the delegation from all mailboxes existing in the tenant
 - **01_Connection_Tenant.ps1**\
 Run it to connect to 365 from a PowerShell console started with admin priviledges
+- **02_Add_Admin_To_All.ps1**\
+Edit the $admin variable to assign to it the delegation for all mailboxes existing in the tenant
+- **02_Remove_Admin_From_All.ps1**\
+Edit the $admin variable to remove the delegation from all mailboxes existing in the tenant
 - **02_import_mailbox_nolicense.ps1**\
 Populate the file 02_import_mailbox_nolicense.csv with data of new sharebox, room or equipment. Create new file for each type and rename the file like 02_import_mailbox_sharebox|room|equipment.csv
 Start the script and it will create them with max attachments size, language selected, and SendAs|SendOnBehalf enabled
