@@ -27,7 +27,7 @@
 $file_arg = $args[0]
 
 if ( [string]::IsNullOrEmpty($file_arg) )  {
-    Write-Host -ForegroundColor Red "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
+    Write-Host "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
     exit
 }
 
@@ -40,7 +40,7 @@ if (-not $directory ) {
 }
 
 if (-not (Test-Path "$file_arg")) {
-    Write-Host -ForegroundColor Red "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
+    Write-Host "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
     exit
 }
 
@@ -66,28 +66,33 @@ if ($Risposta -eq 3) {
     $controllo = 1
 }
 
-$Language = Read-Host -Prompt "Insert the language desidered for the mailboxes (Default: en-us):"
-$DateFormat = Read-Host -Prompt "Insert the Date format (Default: dd/MM/yyyy):"
-$TimeFormat = Read-Host -Prompt "Insert the Time format (Default: HH:mm):"
-$TimeZone = Read-Host -Prompt "Insert the Time Zone (Default: W. Europe Standard Time):"
-
-if (-not $Language) {
-    $Language = "en-us"
-}
-
-if (-not $DateFormat) {
-    $DateFormat = "dd/MM/yyyy"
-}
-
-if (-not $TimeFormat) {
-    $TimeFormat = "HH:mm"
-}
-
-if (-not $TimeZone) {
-    $TimeZone = "W. Europe Standard Time"
-}
-
 if ($controllo -eq 1) {
+
+    $Language = "en-us"
+    $DateFormat = "yyyy-MM-dd"
+    $TimeFormat = "HH:mm"
+    $TimeZone = "Eastern Standard Time"
+
+    $LanguageRequest = Read-Host -Prompt "Insert the language desidered for the mailboxes (Default: $Language):"
+    $DateFormatRequest = Read-Host -Prompt "Insert the Date format (Default: $DateFormat):"
+    $TimeFormatRequest = Read-Host -Prompt "Insert the Time format (Default: $TimeFormat):"
+    $TimeZoneRequest = Read-Host -Prompt "Insert the Time Zone (Default: $TimeZone):"
+
+    if ($LanguageRequest) {
+        $Language = $LanguageRequest
+    }
+
+    if ($DateFormatRequest) {
+        $DateFormat = $DateFormatRequest
+    }
+
+    if ($TimeFormatRequest) {
+        $TimeFormat = $TimeFormatRequest
+    }
+
+    if ($TimeZoneRequest) {
+        $TimeZone = $TimeZoneRequest
+    }
 
     Import-Csv $file_arg | foreach-object {
         Write-Host "Creazione mailbox $($_.Mail) con alias $($_.Alias)" -ForegroundColor Green
@@ -108,7 +113,7 @@ if ($controllo -eq 1) {
             Write-Host "Changing the language of $type $($_.Alias)"    
             Get-Mailbox $($_.Alias) | Get-MailboxRegionalConfiguration | Set-MailboxRegionalConfiguration -Language $Language -DateFormat $DateFormat -TimeFormat $TimeFormat -TimeZone $TimeZone -LocalizeDefaultFolderName:$true
             Start-Sleep -s 2
-            Write-Host "Changing the size limit of $type $($_.Alias)"
+            Write-Host "Changing attachments size for $type $($_.Alias)"
             Set-Mailbox -Identity $($_.Alias) -MaxReceiveSize 150MB -MaxSendSize 150MB
             Start-Sleep -s 2
             Write-Host "Changing SentAs mailbox $type $($_.Alias)"

@@ -24,10 +24,58 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 ###################################################################
 
-Import-Csv .\users.csv | foreach-object {
+$file_arg = $args[0]
+
+if ( [string]::IsNullOrEmpty($file_arg) )  {
+    Write-Host "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
+    exit
+}
+
+$directory = Split-Path -Path $args[0] -Parent
+if (-not $directory ) {
+        $file_arg = $PSScriptRoot + "\" + $file_arg
+} elseif ( $directory -eq "." ) {
+    $file_arg = $file_arg -replace '^\.\\', ''
+    $file_arg = $PSScriptRoot + "\" + $file_arg
+}
+
+if (-not (Test-Path "$file_arg")) {
+    Write-Host "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
+    exit
+}
+
+Write-Host "Check that the file $file_arg has been saved in UTF-8 format"
+Pause
+
+$Language = "en-us"
+$DateFormat = "yyyy-MM-dd"
+$TimeFormat = "HH:mm"
+$TimeZone = "Eastern Standard Time"
+
+$LanguageRequest = Read-Host -Prompt "Insert the language desidered for the mailboxes (Default: $Language):"
+$DateFormatRequest = Read-Host -Prompt "Insert the Date format (Default: $DateFormat):"
+$TimeFormatRequest = Read-Host -Prompt "Insert the Time format (Default: $TimeFormat):"
+$TimeZoneRequest = Read-Host -Prompt "Insert the Time Zone (Default: $TimeZone):"
+
+if ($LanguageRequest) {
+    $Language = $LanguageRequest
+}
+
+if ($DateFormatRequest) {
+    $DateFormat = $DateFormatRequest
+}
+
+if ($TimeFormatRequest) {
+    $TimeFormat = $TimeFormatRequest
+}
+
+if ($TimeZoneRequest) {
+    $TimeZone = $TimeZoneRequest
+}
+
+Import-Csv $file_arg | foreach-object {
     $mailbox = $_.Username
     $password = $_.Password
-    $language = "en-us"
     $mailbox_exist = $Null
 
     Write-Host -Foreground Green "- Start changing settings for $mailbox"
@@ -42,7 +90,7 @@ Import-Csv .\users.csv | foreach-object {
             Write-Host "Password not changed"
         }
         Write-Host "Changing the language for $mailbox"
-        Set-MailboxRegionalConfiguration -Identity $mailbox -Language $language -LocalizeDefaultFolderName
+        Get-Mailbox $mailbox | Get-MailboxRegionalConfiguration | Set-MailboxRegionalConfiguration -Language $Language -DateFormat $DateFormat -TimeFormat $TimeFormat -TimeZone $TimeZone -LocalizeDefaultFolderName:$true
         Write-Host "Changing attachments size for $mailbox"
         Set-Mailbox -Identity $mailbox -MaxReceiveSize 150MB -MaxSendSize 150MB
     } else {
