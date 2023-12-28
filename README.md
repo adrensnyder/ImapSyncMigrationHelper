@@ -185,6 +185,7 @@ I have not tested this procedure with Gmail. You surely need to create an App an
 NOTE: I program in my spare time but i will try to update those scripts asap.
 - Add more options to the Rules scripts (Like Subject)
 - Add language option for single account in sharebox|users creation/modification\
+- Convert Alias|DistributionList|Permissions to use a single file with all the operations like Rules script
 Do similar things for Date, Time and Time Zone for the Sharebox
 
 ---
@@ -192,5 +193,7 @@ Thanks to:\
 [@muttmua](https://github.com/muttmua/mutt/blob/master/contrib/mutt_oauth2.py) for the script mutt_oauth2.py\
 [@imapsync](https://github.com/imapsync/imapsync) for the main program used in this project
 
-All this project was created in another language and I've traslated it to english, mostly with ChatGpt to speed up the work. Some errors in traslation or in the scripts may occurs. I will test asap all the scripts.
+All this project was created in another language and I've traslated it to english, mostly with ChatGpt to speed up the work. Some errors in traslation or in the scripts may occurs. 
+I've tested all the scripts, apart 99_* and Externals, and they works.
+
 Thank you for your patience
