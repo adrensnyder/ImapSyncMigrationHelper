@@ -48,7 +48,7 @@ imapsync --version
 ```
 
 - Create a new path like /srv/data/migrations/[jobname]
-- Copy all GIT files in there
+- Copy all GIT files from Linux folder into it
 - Open main.conf and configure the variables needed at imapsync to work
 - Edit the file mail_list or the filename you chose in the main.conf and write in there all the structure of migration
 
@@ -86,6 +86,8 @@ For all the scripts i'm using Powershell 5.1 Build 22621 Rev. 2506. Not tested w
 
 Firstly, an administrator account with a license that includes the mailbox is required.
 Afterwards, you will need to create the App in the tenant. There is an automated procedure in the Office365 section.
+
+I suggest to create a dedicated folder for every single job, like done for the linux part, and copy the entire folder Office365 from GIT into it.
 
 Open PowerShell, in a Windows PC/Server as an administrator, and run the file 00_CreateApp.ps1. You will need to enter the credentials of the mentioned account.
 You can change the App Name editing the file
