@@ -24,6 +24,29 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 ###################################################################
 
+$file_arg = $args[0]
+
+if ( [string]::IsNullOrEmpty($file_arg) )  {
+    Write-Host -ForegroundColor Red "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
+    exit
+}
+
+$directory = Split-Path -Path $args[0] -Parent
+if (-not $directory ) {
+        $file_arg = $PSScriptRoot + "\" + $file_arg
+} elseif ( $directory -eq "." ) {
+    $file_arg = $file_arg -replace '^\.\\', ''
+    $file_arg = $PSScriptRoot + "\" + $file_arg
+}
+
+if (-not (Test-Path "$file_arg")) {
+    Write-Host -ForegroundColor Red "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
+    exit
+}
+
+Write-Host "Check that the file $file_arg has been saved in UTF-8 format"
+Pause
+
 $type = ""
 $controllo = 0
 $Risposta = Read-Host -Prompt "Select the type:`r`n 1-shared`r`n 2-room`r`n 3-equipment`r`n"
@@ -65,7 +88,8 @@ if (-not $TimeZone) {
 }
 
 if ($controllo -eq 1) {
-    Import-Csv .\00_import_mailbox_$type.csv | foreach-object {
+
+    Import-Csv $file_arg | foreach-object {
         Write-Host "Creazione mailbox $($_.Mail) con alias $($_.Alias)" -ForegroundColor Green
         echo "New-Mailbox -Name ""$($_.Name)"" -Alias $($_.Alias) -MicrosoftOnlineServicesID $($_.Mail)" > tmp_newmail.ps1
         ./tmp_newmail.ps1
@@ -75,23 +99,25 @@ if ($controllo -eq 1) {
     Write-Host "-- Waiting before starting the second conversion procedure and various changes --" -ForegroundColor Red
     Start-Sleep -s 10
     
-    Import-Csv .\00_import_mailbox_$type.csv | foreach-object { 
+    Import-Csv $file_arg | foreach-object { 
         Write-Host "- Start mailbox variations $type $($_.Alias)" -ForegroundColor Green
         Write-Host "Conversion to $type $($_.Alias)"    
         Set-Mailbox $($_.Alias) -Type $type
         Start-Sleep -s 2
-        Write-Host "Changing the language of $type $($_.Alias)"    
-        Get-Mailbox $($_.Alias) | Get-MailboxRegionalConfiguration | Set-MailboxRegionalConfiguration -Language $Language -DateFormat $DateFormat -TimeFormat $TimeFormat -TimeZone $TimeZone -LocalizeDefaultFolderName:$true
-        Start-Sleep -s 2
-        Write-Host "Changing the size limit of $type $($_.Alias)"
-        Set-Mailbox -Identity $($_.Alias) -MaxReceiveSize 150MB -MaxSendSize 150MB
-        Start-Sleep -s 2
-        Write-Host "Changing SentAs mailbox $type $($_.Alias)"
-        set-mailbox $($_.Alias) -MessageCopyForSentAsEnabled $True
-        Start-Sleep -s 2
-        Write-Host "Changing SendOnBehalf mailbox $type $($_.Alias)"
-        set-mailbox $($_.Alias) -MessageCopyForSendOnBehalfEnabled $True
-        Start-Sleep -s 5
+        if ( $type -eq "shared" ) {
+            Write-Host "Changing the language of $type $($_.Alias)"    
+            Get-Mailbox $($_.Alias) | Get-MailboxRegionalConfiguration | Set-MailboxRegionalConfiguration -Language $Language -DateFormat $DateFormat -TimeFormat $TimeFormat -TimeZone $TimeZone -LocalizeDefaultFolderName:$true
+            Start-Sleep -s 2
+            Write-Host "Changing the size limit of $type $($_.Alias)"
+            Set-Mailbox -Identity $($_.Alias) -MaxReceiveSize 150MB -MaxSendSize 150MB
+            Start-Sleep -s 2
+            Write-Host "Changing SentAs mailbox $type $($_.Alias)"
+            set-mailbox $($_.Alias) -MessageCopyForSentAsEnabled $True
+            Start-Sleep -s 2
+            Write-Host "Changing SendOnBehalf mailbox $type $($_.Alias)"
+            set-mailbox $($_.Alias) -MessageCopyForSendOnBehalfEnabled $True
+            Start-Sleep -s 2
+        }
     }
 } else {
     Write-Host "Incorrect value inserted" -ForegroundColor Red
