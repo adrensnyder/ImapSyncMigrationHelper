@@ -160,6 +160,11 @@ $file_arg = $args[0]
 Write-Host "Check that the file $file_arg has been saved in UTF-8 format"
 Pause
 
+if ( [string]::IsNullOrEmpty($file_arg) )  {
+    Write-Host "Insert the file with the rules as a parameter" -ForegroundColor Red
+    exit
+}
+
 $directory = Split-Path -Path $args[0] -Parent
 if (-not $directory ) {
         $file_arg = $PSScriptRoot + "\" + $file_arg
@@ -168,8 +173,8 @@ if (-not $directory ) {
     $file_arg = $PSScriptRoot + "\" + $file_arg
 }
 
-if ( [string]::IsNullOrEmpty($file_arg) )  {
-    Write-Host "Insert the file with the rules as a parameter" -ForegroundColor Red
+if (-not (Test-Path "$file_arg")) {
+    Write-Host "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
     exit
 }
 
