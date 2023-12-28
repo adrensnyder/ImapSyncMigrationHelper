@@ -116,7 +116,9 @@ Copy it and open another terminal on the Linux server you've requested the token
 curl "TheLocalhostUrl"
 ```
 If successful you can close the secondary terminal. The Authorize procedure with Mutt will create the file jobname_token_auth. 
-Inside there you will find the Token, the informatikn you inserted in creation phase and the expire date.
+Inside it you will find the Token, the information you inserted and the expire date.
+
+If any error occurs you have to delete the file jobname_token_auth, check the App, check the admin account used and restart the Mutt Authorize command
 
 Now run
 ```
