@@ -1,3 +1,3 @@
-Account,Sender,Recipient,Path,Read,StopRules
-realaccount@domain.com,,recipient1@domain.com,Inbox\Test\Folder1,False,True
-realaccount@domain.com,mittente1@domain.com,,Inbox\Folder2,True,True
+Account,Sender,Recipient,Path,Read,StopRules,CreateRule
+realaccount@domain.com,,recipient1@domain.com,Inbox\Test\Folder1,False,True,True
+realaccount@domain.com,mittente1@domain.com,,Inbox\Folder2,True,True,True

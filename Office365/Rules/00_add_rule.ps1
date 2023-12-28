@@ -209,7 +209,7 @@ Import-Csv -Path $file_arg | ForEach-Object {
     try{
 
         $mailbox = $($_.Account)
-        $mittente = $($_.Mittente)
+        $mittente = $($_.Sender)
         $destinatario = $($_.Recipient)
 
         if ( $mittente -and $destinatario ) {
@@ -219,7 +219,7 @@ Import-Csv -Path $file_arg | ForEach-Object {
 
         $Percorso = $($_.Path)
 
-        $CreaRegola = [System.Convert]::ToBoolean($($_.CreaRegola))
+        $CreaRegola = [System.Convert]::ToBoolean($($_.CreateRule))
 
         $cartellaDestinazione_Completa = $mailbox + ":\" + $Percorso
         $MarkAsRead = [System.Convert]::ToBoolean($($_.Read))
