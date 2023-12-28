@@ -5,7 +5,7 @@ Migration has been tested to and from Microsoft 365.
 It has not been tested with GMAIL, and automation for creating the necessary App for access is also missing. 
 The token creation procedures are likely the same, but creating the required app for OAuth2 access needs verification.
 
-## Migration Preparation
+## Initial steps
 On a Linux server with at least Python 3.8 (Tested Redhat, Centos and Rocky), install ImapSync and update it to the latest version.
 
 Personally, I follow these steps:
@@ -81,7 +81,9 @@ NOTE: I suggest to schedule the job only after a successful first migration
 
 ## oAuth2
 ### Microsoft 365
-It is possible to copy data by accessing Microsoft 365 mailboxes.
+It is possible to copy data by accessing Microsoft 365 mailboxes. 
+For all the scripts i'm using Powershell 5.1 Build 22621 Rev. 2506. Not tested with other versions
+
 Firstly, an administrator account with a license that includes the mailbox is required.
 Afterwards, you will need to create the App in the tenant. There is an automated procedure in the Office365 section.
 
