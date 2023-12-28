@@ -139,10 +139,7 @@ NOTE:
 If you want to migrate from 365 to 365, you can:
 
 - Try the functions included in the Exchange section for Tenant-to-Tenant migration. (I haven't had much luck, except with the Gmail Tenant to 365 function)
-- Generate the app, create the token with another name using mutt, changing only the jobname in the filename when requesting authorization, and start
-```
-/create_next_schedule.sh newjobname_token_auth
-```
+- Generate the app, create the token with another name using mutt, changing only the jobname in the filename when requesting authorization, and start `./create_next_schedule.sh newjobname_token_auth`
 Now, in the main.conf file, change the variables TOKEN_ORIG and TOKEN_DEST.
 
 The password in mail_list for the 365 account isn't needed but must maintain the structure, so write something like "pass".
