@@ -153,7 +153,7 @@ Edit the $admin variable to assign to it the delegation for all mailboxes existi
 Edit the $admin variable to remove the delegation from all mailboxes existing in the tenant
 - **02_import_mailbox_nolicense.ps1**\
 Populate the file 02_import_mailbox_nolicense.csv with data of new sharebox, room or equipment. Create new file for each type and rename the file like 02_import_mailbox_sharebox|room|equipment.csv
-Start the script and it will create them with max attachments size, language selected, and SendAs|SendOnBehalf enabled
+Start the script with the filename as parameter you want to import and it will create them with max attachments size, language selected, and SendAs|SendOnBehalf enabled
 - **02_user_settings.ps1**\
 This script need a file called users.csv that can be downloaded after the massive import in the Tenant Users list.
 You can create it manually with\
