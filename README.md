@@ -189,7 +189,7 @@ I have not tested this procedure with Gmail. You surely need to create an App an
 NOTE: I program in my spare time but i will try to update those scripts asap.
 - Add more options to the Rules scripts (Like Subject)
 - Add language option for single row and not the entire conversion in sharebox|users_settings
-- Convert Alias|DistributionList|Permissions to use a single file with all the operations like Rules script
+- **[Done]** ~Convert Alias|DistributionList|Permissions to use a single file with all the operations like Rules script~
 
 ---
 Thanks to:\
