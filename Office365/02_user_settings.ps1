@@ -31,6 +31,9 @@ if ( [string]::IsNullOrEmpty($file_arg) )  {
     exit
 }
 
+Write-Host "Check that the file $file_arg has been saved in UTF-8 format"
+Pause
+
 $directory = Split-Path -Path $args[0] -Parent
 if (-not $directory ) {
         $file_arg = $PSScriptRoot + "\" + $file_arg
@@ -43,9 +46,6 @@ if (-not (Test-Path "$file_arg")) {
     Write-Host "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
     exit
 }
-
-Write-Host "Check that the file $file_arg has been saved in UTF-8 format"
-Pause
 
 $Language = "en-us"
 $DateFormat = "yyyy-MM-dd"

@@ -157,13 +157,14 @@ function CreateFolder {
 # Programmazione
 
 $file_arg = $args[0]
-Write-Host "Check that the file $file_arg has been saved in UTF-8 format"
-Pause
 
 if ( [string]::IsNullOrEmpty($file_arg) )  {
     Write-Host "Insert the file with the rules as a parameter" -ForegroundColor Red
     exit
 }
+
+Write-Host "Check that the file $file_arg has been saved in UTF-8 format"
+Pause
 
 $directory = Split-Path -Path $args[0] -Parent
 if (-not $directory ) {

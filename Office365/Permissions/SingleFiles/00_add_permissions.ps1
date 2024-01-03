@@ -24,49 +24,26 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 ###################################################################
 
-# Program
-
-$file_arg = $args[0]
-
-if ( [string]::IsNullOrEmpty($file_arg) )  {
-    Write-Host "Insert the file with the rules as a parameter" -ForegroundColor Red
-    exit
-}
-
-Write-Host "Check that the file $file_arg has been saved in UTF-8 format"
-Pause
-
-$directory = Split-Path -Path $args[0] -Parent
-if (-not $directory ) {
-        $file_arg = $PSScriptRoot + "\" + $file_arg
-} elseif ( $directory -eq "." ) {
-    $file_arg = $file_arg -replace '^\.\\', ''
-    $file_arg = $PSScriptRoot + "\" + $file_arg
-}
-
-if (-not (Test-Path "$file_arg")) {
-    Write-Host "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
-    exit
-}
-
-$mailbox_prev = ""
+$mailbox_arg = $args[0]
+$file_arg = $args[1]
+$access = "FullAccess"
+$mailbox = Get-Mailbox -Identity $mailbox_arg
+$identity = $mailbox.UserPrincipalName
+$permissions = Get-MailboxPermission -identity $identity
 
 Import-Csv -Path $file_arg | ForEach-Object {
-    $mailbox = $($_.Account) 
-    $alias = $($_.Alias)
-    
-    if ($mailbox -ne $mailbox_prev) {
-        Write-Host ""
-        Write-Host -ForegroundColor Green "- Adding Aliases for account $mailbox"
+	
+    Write-Host "Applying permissions for $($_.Delegate) (AutoMapping $($_.AutoMapping))"
+    try{
+        $setPermissions = Add-MailboxPermission -Identity $identity -User $($_.Delegate) -AccessRights $access -AutoMapping $($_.AutoMapping)
+    }catch{
+        Write-Host "[$mailbox] Error applying permissions for $($_.Delegate) " -ForegroundColor Red
     }
     
     try{
-        Write-Host "$alias"
-	    Set-Mailbox $mailbox -EmailAddresses @{Add="$alias"}
+        $setPermissions = Add-RecipientPermission -Identity $identity -Trustee $($_.Delegate) -AccessRights SendAs -confirm:$false
     }catch{
-        Write-Host "[$mailbox] Errors adding the alias for $($_.Alias) " -ForegroundColor Red
+        Write-Host "[$mailbox SendAs] Error applying permissions for $($_.Delegate) " -ForegroundColor Red
     }
-
-    $mailbox_prev = $mailbox
     
 }

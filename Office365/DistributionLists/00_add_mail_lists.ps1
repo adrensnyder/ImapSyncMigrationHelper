@@ -24,30 +24,66 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 ###################################################################
 
-$mailbox_arg = $args[0]
-$file_arg = $args[1]
-$listname = "$mailbox_arg"
-$listname_nodomain = $listname.Split('@')[0]
-$alias = $listname_nodomain + "_listadistribuzione"
+$alias_suffix = "_distributionlist"
 
-Write-Host "- List $listname" -ForegroundColor Green
+# Program
 
-$DistributionGroup = Get-DistributionGroup -ResultSize Unlimited | Where-Object { $_.PrimarySmtpAddress -eq $listname }
+$file_arg = $args[0]
 
-if ($distributionList -ne $null) {
-    Write-Host "The Distribution List $mailbox_arg already exists!"
-} else {
-    Write-Host "The Distribution List will be created!"
-    New-DistributionGroup -RequireSenderAuthenticationEnabled $False -DisplayName $listname -Name $listname -PrimarySmtpAddress $listname -Alias $listname_nodomain
+if ( [string]::IsNullOrEmpty($file_arg) )  {
+    Write-Host "Insert the file with the rules as a parameter" -ForegroundColor Red
+    exit
 }
+
+Write-Host "Check that the file $file_arg has been saved in UTF-8 format"
+Pause
+
+$directory = Split-Path -Path $args[0] -Parent
+if (-not $directory ) {
+        $file_arg = $PSScriptRoot + "\" + $file_arg
+} elseif ( $directory -eq "." ) {
+    $file_arg = $file_arg -replace '^\.\\', ''
+    $file_arg = $PSScriptRoot + "\" + $file_arg
+}
+
+if (-not (Test-Path "$file_arg")) {
+    Write-Host "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
+    exit
+}
+
+$listname_prev = ""
 
 Import-Csv -Path $file_arg | ForEach-Object {
 	
-    Write-Host "Adding mail $($_.Account) to the Distribution List"
-    try{
-        Add-DistributionGroupMember -Identity $listname -Member $($_.Account)
-    }catch{
-        Write-Host "[$listname] Errors adding $($_.Account)" -ForegroundColor Red
+    $listname = $($_.List)
+    $listname_nodomain = $listname.Split('@')[0]
+    $alias = $listname_nodomain + $alias_suffix
+    $account = $($_.Account)
+
+    if ($listname -ne $listname_prev) {
+        Write-Host ""
+        Write-Host -ForegroundColor Green "- Adding members for list $listname"
     }
+
+    $DistributionGroup = Get-DistributionGroup -ResultSize Unlimited | Where-Object { $_.PrimarySmtpAddress -eq $listname }
+    
+    if (-not $DistributionGroup) {
+        Write-Host "The Distribution List will be created!"
+        New-DistributionGroup -RequireSenderAuthenticationEnabled $False -DisplayName $listname -Name $listname -PrimarySmtpAddress $listname -Alias $listname_nodomain
+        $DistributionGroup = Get-DistributionGroup -ResultSize Unlimited | Where-Object { $_.PrimarySmtpAddress -eq $listname }
+    }
+
+    if ($DistributionGroup) {
+        Write-Host "Adding mail $account to the Distribution List"
+        try{
+            Add-DistributionGroupMember -Identity $listname -Member $($_.Account)
+        }catch{
+            Write-Host "[$listname] Errors adding $account" -ForegroundColor Red
+        }
+    } else {
+        Write-Host -ForegroundColor Red "The Distribution List not exist!"
+    }
+
+    $listname_prev = $listname
     
 }

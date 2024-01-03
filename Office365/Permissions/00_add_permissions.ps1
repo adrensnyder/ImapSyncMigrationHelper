@@ -24,26 +24,58 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 ###################################################################
 
-$mailbox_arg = $args[0]
-$file_arg = $args[1]
-$access = "FullAccess"
-$mailbox = Get-Mailbox -Identity $mailbox_arg
-$identity = $mailbox.UserPrincipalName
-$permissions = Get-MailboxPermission -identity $identity
+# Program
+
+$file_arg = $args[0]
+
+if ( [string]::IsNullOrEmpty($file_arg) )  {
+    Write-Host "Insert the file with the rules as a parameter" -ForegroundColor Red
+    exit
+}
+
+Write-Host "Check that the file $file_arg has been saved in UTF-8 format"
+Pause
+
+$directory = Split-Path -Path $args[0] -Parent
+if (-not $directory ) {
+        $file_arg = $PSScriptRoot + "\" + $file_arg
+} elseif ( $directory -eq "." ) {
+    $file_arg = $file_arg -replace '^\.\\', ''
+    $file_arg = $PSScriptRoot + "\" + $file_arg
+}
+
+if (-not (Test-Path "$file_arg")) {
+    Write-Host "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
+    exit
+}
+
+$account_prev = ""
 
 Import-Csv -Path $file_arg | ForEach-Object {
+
+    $account = $($_.Account)
+    $delegate = $($_.Delegate)
+    $permissions = $($_.Permissions)
+    $automapping = $($_.AutoMapping)
 	
-    Write-Host "Applying permissions for $($_.Delegate) (AutoMapping $($_.AutoMapping))"
+    if ($account -ne $account_prev) {
+        Write-Host ""
+        Write-Host -ForegroundColor Green "- Adding delegate for account $account"
+    }
+
+    Write-Host "$delegate (Permissions:$permissions | AutoMapping:$automapping)"
     try{
-        $setPermissions = Add-MailboxPermission -Identity $identity -User $($_.Delegate) -AccessRights $access -AutoMapping $($_.AutoMapping)
+        $setPermissions = Add-MailboxPermission -Identity $account -User $delegate -AccessRights $permissions -AutoMapping $automapping
     }catch{
-        Write-Host "[$mailbox] Error applying permissions for $($_.Delegate) " -ForegroundColor Red
+        Write-Host "[$mailbox] Error applying permissions for $delegate " -ForegroundColor Red
     }
     
     try{
-        $setPermissions = Add-RecipientPermission -Identity $identity -Trustee $($_.Delegate) -AccessRights SendAs -confirm:$false
+        $setPermissions = Add-RecipientPermission -Identity $account -Trustee $delegate -AccessRights SendAs -confirm:$false
     }catch{
-        Write-Host "[$mailbox SendAs] Error applying permissions for $($_.Delegate) " -ForegroundColor Red
+        Write-Host "[$mailbox SendAs] Error applying permissions for $delegate " -ForegroundColor Red
     }
+
+    $account_prev = $account
     
 }

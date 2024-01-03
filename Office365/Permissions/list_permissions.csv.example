@@ -1,0 +1,3 @@
+Account,Delegate,Permissions,AutoMapping
+account@domain.com,delegate01@domain.com,FullAccess,true
+account@domain.com,delegate02@domain.com,FullAccess,false
