@@ -1,7 +1,7 @@
 # ImapSyncMigrationHelper
 The purpose of these tools is to assist in migrating a mail system using ImapSync.
 
-Migration has been tested to and from Microsoft 365.
+Migration has also been tested to and from Microsoft 365.
 It has not been tested with GMAIL, and automation for creating the necessary App for access is also missing. 
 The token creation procedures are likely the same, but creating the required app for OAuth2 access needs verification.
 
@@ -48,7 +48,7 @@ imapsync --version
 ```
 
 - Create a new path like /srv/data/migrations/[jobname]
-- Copy all GIT files in there
+- Copy all GIT files from Linux folder into it
 - Open main.conf and configure the variables needed at imapsync to work
 - Edit the file mail_list or the filename you chose in the main.conf and write in there all the structure of migration
 
@@ -56,8 +56,8 @@ Start migration in a screen session using ImapSyncMigrationHelper.sh :)
 
 ### ListFolders
 Leaving LISTFOLDERS enabled will create a folder in the log with the \_listfolder tag. 
-ImapSync will only provide the list of folders in the origin and destination
-it is useful to find if there are any problems in connection/login/configuration or if some folders are not correctly translated
+ImapSync will only provide the list of folders in the origin and destination.
+It's useful to find if there are any problems in connection/login/configuration or if some folders are not correctly translated
 
 ### Check migration for errors
 Using the script check_migration.sh, you can check for some errors, usually, I find, in my experience, providing a summary of the migration status. 
@@ -79,13 +79,15 @@ If you want to be sure it start only after a renew of the token you can use atst
 
 NOTE: I suggest to schedule the job only after a successful first migration 
 
-## oAuth2
+## OAuth2
 ### Microsoft 365
-It is possible to copy data by accessing Microsoft 365 mailboxes. 
-For all the scripts i'm using Powershell 5.1 Build 22621 Rev. 2506. Not tested with other versions
+It is possible to copy data by accessing Microsoft 365 mailboxes.\
+For all the scripts i'm using **Powershell 5.1 Build 22621 Rev. 2506**. Not tested with other versions
 
 Firstly, an administrator account with a license that includes the mailbox is required.
 Afterwards, you will need to create the App in the tenant. There is an automated procedure in the Office365 section.
+
+I suggest to create a dedicated folder for every single job, like done for the linux part, and copy the entire folder Office365 from GIT into it.
 
 Open PowerShell, in a Windows PC/Server as an administrator, and run the file 00_CreateApp.ps1. You will need to enter the credentials of the mentioned account.
 You can change the App Name editing the file
@@ -109,11 +111,14 @@ When requested, insert the tenant administrator account used for the migration a
 
 Log in to office.com with the tenant administrator account and paste it in the address bar of the browser. The next page will show an error because it will try to connect to a localhost URL
 
-Copy it and open another terminal on the Linux server you've requestd the token and type
+Copy it and open another terminal on the Linux server you've requested the token and type
 ```
 curl "TheLocalhostUrl"
 ```
-If successful, it will create the file jobname_token_auth
+If successful you can close the secondary terminal. The Authorize procedure with Mutt will create the file jobname_token_auth. 
+Inside it you will find the Token, the information you inserted and the expire date.
+
+If any error occurs you have to delete the file jobname_token_auth, check the App, check the admin account used and restart the Mutt Authorize command
 
 Now run
 ```
@@ -133,9 +138,8 @@ atrm [ID]
 NOTE:
 If you want to migrate from 365 to 365, you can:
 
-- Try the functions included in the Tenant Exchange section
-- Generate the app, create the token with another name using mutt, changing only the jobname in the filename when requesting authorization, and start ./create_next_schedule.sh newjobname.
-Now, in the main.conf file, change the variables TOKEN_ORIG and TOKEN_DEST.
+- Try the functions included in the Exchange section for Tenant-to-Tenant migration. (I haven't had much luck, except with the Gmail Tenant to 365 function)
+- Generate the app, create the token with another name using mutt, changing only the jobname in the filename when requesting authorization, and start `./create_next_schedule.sh newjobname_token_auth`. Now, in the main.conf file, change the variables TOKEN_ORIG and TOKEN_DEST.
 
 The password in mail_list for the 365 account isn't needed but must maintain the structure, so write something like "pass".
 
@@ -184,9 +188,8 @@ I have not tested this procedure with Gmail. You surely need to create an App an
 ## TODO
 NOTE: I program in my spare time but i will try to update those scripts asap.
 - Add more options to the Rules scripts (Like Subject)
-- Add language option for single account in sharebox|users creation/modification\
+- Add language option for single row and not the entire conversion in sharebox|users_settings
 - Convert Alias|DistributionList|Permissions to use a single file with all the operations like Rules script
-Do similar things for Date, Time and Time Zone for the Sharebox
 
 ---
 Thanks to:\
