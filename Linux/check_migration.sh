@@ -148,3 +148,20 @@ for file in $LIST_UNIQUE; do
     LASTLOG=`ls -1 -r "$LOGPATH/$file"* |head -n1`
     GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep --colour -iTHn -E 'msg.*skipped|skipped.*msg' $LASTLOG
 done
+echo -e "${RED}- CHECK Status${NC}"
+for file in $LIST_UNIQUE; do
+        LASTLOG=`ls -1 -r "$LOGPATH/$file"* |head -n1`
+        GREP_RESULT=""
+        GREP_RESULT=`grep --colour -iTHn -E 'Exiting with return value' $LASTLOG |wc -l`
+        if [ "$GREP_RESULT" -eq "0" ]; then
+                PS_TEST=`ps auxwf |grep imapsync |grep $file|wc -l`
+                if [ "$PS_TEST" -gt "0" ]; then
+                        echo "--> $file Imapsync process is running"
+                else
+                        echo "--> $file Not completed. Probably terminated cause of an 'Out of memory' error. Try to limit attachments size with --maxsize 150_000_000"
+                fi
+        else
+                GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep --colour -iTHn -E 'Exiting with return value' $LASTLOG
+        fi
+
+done
