@@ -168,14 +168,14 @@ Edit $orig_domain and $dest_domain variables. It will change the primary SMTP do
 - **99_CheckMailGuid.ps1** and **99_RetrieveGUIDtoCSV.ps1**\
 There scripts were created to cross check that the GUID used in some procedures match the email address
 - **Alias**\
-Add Aliases to an account\
-Usage (Single): .\00_add_alias.ps1 mailbox@domain.com filename.csv
+Add Aliases to a mailbox\
+Usage (Single): .\00_add_alias.ps1 filename.csv
 - **DistributionList**\
 Create, if not exist, a Distribution List and add users to it\
-Usage (Single): .\00_add_mail_lists.ps1 list@domain.com filename.csv
+Usage (Single): .\00_add_mail_lists.ps1 filename.csv
 - **Permissions**\
-Add delegated users to a sharebox\
-Usage (Single): .\00_add_alias.ps1 mailbox@domain.com filename.csv
+Add delegated users to a mailbox\
+Usage (Single): .\00_add_alias.ps1 filename.csv
 - **Rules**\
 Create a path in the mailbox and a simple rule\
 NOTE: If using a system folder (Ex. Inbox) check that it exist in every account with the correct language or it will be created.
