@@ -56,7 +56,7 @@ Import-Csv -Path $file_arg | ForEach-Object {
     $account = $($_.Account)
     $delegate = $($_.Delegate)
     $permissions = $($_.Permissions)
-    $automapping = $($_.AutoMapping)
+    $automapping = [System.Convert]::ToBoolean($($_.AutoMapping))
 	
     if ($account -ne $account_prev) {
         Write-Host ""
