@@ -89,8 +89,7 @@ for file in $LIST_UNIQUE; do
 
 done
 
-ALL_GOOD_NOTFINISHED=0
-let "ALL_GOOD_NOTFINISHED=GOOD_COUNT+NOTSTRICT_COUNT+NOTFINISHED_COUNT"
+ALL_GOOD_NOTFINISHED=`grep "Exiting with return value" $LOGPATH/* |wc -l`
 
 echo -e "- ${RED}General Stats${NC}"
 echo "Total emails in check: $COUNT_LIST"
