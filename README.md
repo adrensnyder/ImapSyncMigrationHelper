@@ -206,7 +206,7 @@ NOTE: I program in my spare time but i will try to update those scripts asap.
 - **[Done]** ~Convert Alias|DistributionList|Permissions to use a single file with all the operations like Rules script~
 
 ---
-Thanks to:\
+## Thanks to:\
 [@muttmua](https://github.com/muttmua/mutt/blob/master/contrib/mutt_oauth2.py) for the script mutt_oauth2.py\
 [@imapsync](https://github.com/imapsync/imapsync) for the main program used in this project
 
