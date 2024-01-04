@@ -1,2 +1,2 @@
-Name,Alias,Mail
-Name Mailbox,name_mailbox,name_mailbox@domain.com
+Name,Type,Alias,Account,Language,DateFormat,TimeFormat,TimeZone
+Name Mailbox,shared,name_mailbox,name_mailbox@domain.com,en-us,yyyy-MM-dd,HH:mm,Eastern Standard Time

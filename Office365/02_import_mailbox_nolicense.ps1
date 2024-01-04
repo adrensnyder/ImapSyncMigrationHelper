@@ -24,6 +24,13 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 ###################################################################
 
+# List all available time zones
+#$allTimeZones = [System.TimeZoneInfo]::GetSystemTimeZones()
+#
+#foreach ($timeZone in $allTimeZones) {
+#    Write-Host "Id: $($timeZone.Id), Display Name: $($timeZone.DisplayName), Standard Name: $($timeZone.StandardName)"
+#}
+
 $file_arg = $args[0]
 
 if ( [string]::IsNullOrEmpty($file_arg) )  {
@@ -47,84 +54,48 @@ if (-not (Test-Path "$file_arg")) {
     exit
 }
 
-$type = ""
-$controllo = 0
-$Risposta = Read-Host -Prompt "Select the type:`r`n 1-shared`r`n 2-room`r`n 3-equipment`r`n"
 
-if ($Risposta -eq 1) {
-    $type = "shared"
-    $controllo = 1
+Import-Csv $file_arg | foreach-object {
+    $Account = $_.Account
+    $Name = $_.Name
+    $Alias = $_.Alias
+
+    Write-Host "Creazione mailbox $Account con alias $_.Alias" -ForegroundColor Green
+    echo "New-Mailbox -Name ""$Name"" -Alias $_.Alias -MicrosoftOnlineServicesID $Account" > tmp_newmail.ps1
+    ./tmp_newmail.ps1
+    Start-Sleep -s 5
 }
 
-if ($Risposta -eq 2) {
-    $type = "room"
-    $controllo = 1
-}
+Write-Host "-- Waiting before starting the second conversion procedure and various changes --" -ForegroundColor Red
+Start-Sleep -s 10
 
-if ($Risposta -eq 3) {
-    $type = "equipment"
-    $controllo = 1
-}
+Import-Csv $file_arg | foreach-object { 
+    $Account = $_.Account
+    $Type = $_.Type #Can be shared, room or equipment
+    $Name = $_.Name
+    $Alias = $_.Alias
+    $Language = $_.Language
+    $DateFormat = $_.DateFormat
+    $TimeFormat = $_.TimeFormat
+    $TimeZone = $_.TimeZone
 
-if ($controllo -eq 1) {
-
-    $Language = "en-us"
-    $DateFormat = "yyyy-MM-dd"
-    $TimeFormat = "HH:mm"
-    $TimeZone = "Eastern Standard Time"
-
-    $LanguageRequest = Read-Host -Prompt "Insert the language desidered for the mailboxes (Default: $Language):"
-    $DateFormatRequest = Read-Host -Prompt "Insert the Date format (Default: $DateFormat):"
-    $TimeFormatRequest = Read-Host -Prompt "Insert the Time format (Default: $TimeFormat):"
-    $TimeZoneRequest = Read-Host -Prompt "Insert the Time Zone (Default: $TimeZone):"
-
-    if ($LanguageRequest) {
-        $Language = $LanguageRequest
-    }
-
-    if ($DateFormatRequest) {
-        $DateFormat = $DateFormatRequest
-    }
-
-    if ($TimeFormatRequest) {
-        $TimeFormat = $TimeFormatRequest
-    }
-
-    if ($TimeZoneRequest) {
-        $TimeZone = $TimeZoneRequest
-    }
-
-    Import-Csv $file_arg | foreach-object {
-        Write-Host "Creazione mailbox $($_.Mail) con alias $($_.Alias)" -ForegroundColor Green
-        echo "New-Mailbox -Name ""$($_.Name)"" -Alias $($_.Alias) -MicrosoftOnlineServicesID $($_.Mail)" > tmp_newmail.ps1
-        ./tmp_newmail.ps1
-        Start-Sleep -s 5
-    }
-
-    Write-Host "-- Waiting before starting the second conversion procedure and various changes --" -ForegroundColor Red
-    Start-Sleep -s 10
-    
-    Import-Csv $file_arg | foreach-object { 
-        Write-Host "- Start mailbox variations $type $($_.Alias)" -ForegroundColor Green
-        Write-Host "Conversion to $type $($_.Alias)"    
-        Set-Mailbox $($_.Alias) -Type $type
+    Write-Host "- Start mailbox variations $Type $Alias" -ForegroundColor Green
+    Write-Host "Conversion to $type $Alias"    
+    Set-Mailbox $Alias -Type $Type
+    Start-Sleep -s 2
+    if ( $Type -eq "shared" ) {
+        Write-Host "Changing the language of $Type $Alias"    
+        Get-Mailbox $Alias | Get-MailboxRegionalConfiguration | Set-MailboxRegionalConfiguration -Language $Language -DateFormat $DateFormat -TimeFormat $TimeFormat -TimeZone $TimeZone -LocalizeDefaultFolderName:$true
         Start-Sleep -s 2
-        if ( $type -eq "shared" ) {
-            Write-Host "Changing the language of $type $($_.Alias)"    
-            Get-Mailbox $($_.Alias) | Get-MailboxRegionalConfiguration | Set-MailboxRegionalConfiguration -Language $Language -DateFormat $DateFormat -TimeFormat $TimeFormat -TimeZone $TimeZone -LocalizeDefaultFolderName:$true
-            Start-Sleep -s 2
-            Write-Host "Changing attachments size for $type $($_.Alias)"
-            Set-Mailbox -Identity $($_.Alias) -MaxReceiveSize 150MB -MaxSendSize 150MB
-            Start-Sleep -s 2
-            Write-Host "Changing SentAs mailbox $type $($_.Alias)"
-            set-mailbox $($_.Alias) -MessageCopyForSentAsEnabled $True
-            Start-Sleep -s 2
-            Write-Host "Changing SendOnBehalf mailbox $type $($_.Alias)"
-            set-mailbox $($_.Alias) -MessageCopyForSendOnBehalfEnabled $True
-            Start-Sleep -s 2
-        }
+        Write-Host "Changing attachments size for $Type $Alias"
+        Set-Mailbox -Identity $Alias -MaxReceiveSize 150MB -MaxSendSize 150MB
+        Start-Sleep -s 2
+        Write-Host "Changing SentAs mailbox $Type $Alias"
+        set-mailbox $Alias -MessageCopyForSentAsEnabled $True
+        Start-Sleep -s 2
+        Write-Host "Changing SendOnBehalf mailbox $Type $Alias"
+        set-mailbox $Alias -MessageCopyForSendOnBehalfEnabled $True
+        Start-Sleep -s 2
     }
-} else {
-    Write-Host "Incorrect value inserted" -ForegroundColor Red
-    exit
 }
+

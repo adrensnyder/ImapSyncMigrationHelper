@@ -24,6 +24,13 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 ###################################################################
 
+# List all available time zones
+#$allTimeZones = [System.TimeZoneInfo]::GetSystemTimeZones()
+#
+#foreach ($timeZone in $allTimeZones) {
+#    Write-Host "Id: $($timeZone.Id), Display Name: $($timeZone.DisplayName), Standard Name: $($timeZone.StandardName)"
+#}
+
 $file_arg = $args[0]
 
 if ( [string]::IsNullOrEmpty($file_arg) )  {
@@ -47,35 +54,14 @@ if (-not (Test-Path "$file_arg")) {
     exit
 }
 
-$Language = "en-us"
-$DateFormat = "yyyy-MM-dd"
-$TimeFormat = "HH:mm"
-$TimeZone = "Eastern Standard Time"
-
-$LanguageRequest = Read-Host -Prompt "Insert the language desidered for the mailboxes (Default: $Language):"
-$DateFormatRequest = Read-Host -Prompt "Insert the Date format (Default: $DateFormat):"
-$TimeFormatRequest = Read-Host -Prompt "Insert the Time format (Default: $TimeFormat):"
-$TimeZoneRequest = Read-Host -Prompt "Insert the Time Zone (Default: $TimeZone):"
-
-if ($LanguageRequest) {
-    $Language = $LanguageRequest
-}
-
-if ($DateFormatRequest) {
-    $DateFormat = $DateFormatRequest
-}
-
-if ($TimeFormatRequest) {
-    $TimeFormat = $TimeFormatRequest
-}
-
-if ($TimeZoneRequest) {
-    $TimeZone = $TimeZoneRequest
-}
-
 Import-Csv $file_arg | foreach-object {
-    $mailbox = $_.Username
+    $mailbox = $_.Account
     $password = $_.Password
+    $Language = $_.Language
+    $DateFormat = $_.DateFormat
+    $TimeFormat = $_.TimeFormat
+    $TimeZone = $_.TimeZone
+
     $mailbox_exist = $Null
 
     Write-Host -Foreground Green "- Start changing settings for $mailbox"
