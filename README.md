@@ -201,8 +201,8 @@ I have not tested this procedure with Gmail. You surely need to create an App an
 ## TODO
 NOTE: I program in my spare time but i will try to update those scripts asap.
 - Add more options to the Rules scripts (Like Subject)
-- Add language option for single row and not the entire conversion in sharebox|users_settings\
 - Verify and integration of token management https://imapsync.lamiral.info/oauth2/oauth2_office365/ 
+- **[Done]** ~Add language option for single row and not the entire conversion in sharebox|users_settings~\
 - **[Done]** ~Convert Alias|DistributionList|Permissions to use a single file with all the operations like Rules script~
 
 ---
