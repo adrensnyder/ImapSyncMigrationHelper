@@ -158,12 +158,12 @@ Edit the $admin variable to remove the delegation from all mailboxes existing in
 - **02_import_mailbox_nolicense.ps1**\
 Populate the file 02_import_mailbox_nolicense.csv with data of new sharebox, room or equipment.
 Start the script with the filename as parameter you want to import and it will create them with max attachments size, international options, and SendAs|SendOnBehalf enabled\
-For a list of TimeZones see the TimeZones section
+For a list of TimeZones see the TimeZones section\
 Usage: .\02_import_mailbox_nolicense.ps1 filename.csv
 - **02_user_settings.ps1**\
 Populate the file 02_user_settings.csv
 It will reset the password, if present (You can leave it empty), change the attachments size and the international options\
-For a list of TimeZones see the TimeZones section
+For a list of TimeZones see the TimeZones section\
 Usage: .\02_user_settings.ps1 filename.csv
 - **03_Change_Domain.ps1**\
 Edit $orig_domain and $dest_domain variables. It will change the primary SMTP domain of all mailboxes
