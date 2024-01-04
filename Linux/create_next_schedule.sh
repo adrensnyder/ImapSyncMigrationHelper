@@ -91,13 +91,13 @@ TIME="$TIMEH:$TIMEM"
 $PYTHON $MUTT "$TOKEN_NAME"_token_auth > $PROJECTPATH/"$TOKEN_NAME"_token_imapsync
 
 # (retoken) Request the token immediately
-echo "/opt/rh/rh-python38/root/usr/bin/python $MUTT ""$TOKEN_NAME""_token_auth > $PROJECTPATH/""$TOKEN_NAME""_token_imapsync" > $PROJECTPATH/$RETOKEN.sh
+echo "$PYTHON $MUTT ""$TOKEN_NAME""_token_auth > $PROJECTPATH/""$TOKEN_NAME""_token_imapsync" > $PROJECTPATH/$RETOKEN.sh
 # (retoken) Request the token after $TIMES seconds
 echo "sleep $TIMES" >> $PROJECTPATH/$RETOKEN.sh
-echo "/opt/rh/rh-python38/root/usr/bin/python $MUTT ""$TOKEN_NAME""_token_auth > $PROJECTPATH/""$TOKEN_NAME""_token_imapsync" >> $PROJECTPATH/$RETOKEN.sh
+echo "$PYTHON $MUTT ""$TOKEN_NAME""_token_auth > $PROJECTPATH/""$TOKEN_NAME""_token_imapsync" >> $PROJECTPATH/$RETOKEN.sh
 # (retoken) Request the token again after 60 seconds for additional security
 echo sleep 60 >> $PROJECTPATH/$RETOKEN.sh
-echo "/opt/rh/rh-python38/root/usr/bin/python $MUTT ""$TOKEN_NAME""_token_auth > $PROJECTPATH/""$TOKEN_NAME""_token_imapsync" >> $PROJECTPATH/$RETOKEN.sh
+echo "$PYTHON $MUTT ""$TOKEN_NAME""_token_auth > $PROJECTPATH/""$TOKEN_NAME""_token_imapsync" >> $PROJECTPATH/$RETOKEN.sh
 # (retoken) Wait for 60 seconds before creating the new job
 echo sleep 60 >> $PROJECTPATH/$RETOKEN.sh
 # (retoken) Schedule the creation of the new at job
