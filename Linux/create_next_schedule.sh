@@ -26,6 +26,9 @@
 
 #!/bin/sh
 
+# Use at last python3.8. You can install and set the correct path of the executable like /opt/rh/rh-python38/root/usr/bin/python
+PYTHON="/usr/bin/python"
+
 # NOTE:
 # You can use PARAMETER1 to declare another token name if use more than one
 #
@@ -85,7 +88,7 @@ TIME="$TIMEH:$TIMEM"
 #echo $TIME $DATE
 
 # Create the token immediately
-/opt/rh/rh-python38/root/usr/bin/python $MUTT "$TOKEN_NAME"_token_auth > $PROJECTPATH/"$TOKEN_NAME"_token_imapsync
+$PYTHON $MUTT "$TOKEN_NAME"_token_auth > $PROJECTPATH/"$TOKEN_NAME"_token_imapsync
 
 # (retoken) Request the token immediately
 echo "/opt/rh/rh-python38/root/usr/bin/python $MUTT ""$TOKEN_NAME""_token_auth > $PROJECTPATH/""$TOKEN_NAME""_token_imapsync" > $PROJECTPATH/$RETOKEN.sh
