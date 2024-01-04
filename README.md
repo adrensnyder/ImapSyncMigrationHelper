@@ -185,7 +185,7 @@ If this appen you can move the subfolders created from the webmail to the correc
 Usage: .\00_add_rule.ps1 filename.csv
 
 #### TimeZones
-You can use this command to retrieve a list of the timezones usable\
+You can use this command to retrieve a list of the timezones usable
 ```
 # List all available time zones
 $allTimeZones = [System.TimeZoneInfo]::GetSystemTimeZones()
