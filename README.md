@@ -182,7 +182,8 @@ Usage: .\00_add_alias.ps1 filename.csv
 Create a path in the mailbox and a simple rule\
 NOTE: If using a system folder (Ex. Inbox) check that it exist in every account with the correct language or it will be created.
 If this appen you can move the subfolders created from the webmail to the correct folder and the rule will adapt itself\
-Usage: .\00_add_rule.ps1 filename.csv
+Usage: .\00_add_rule.ps1 filename.csv\
+*WARNING: Test the rules created by the script. In my test, out of 30 rules, 3 of them aren't working correctly. The email results are sent to the correct folder, but there is no message. Editing the rule, reassigning the same folder, and saving solve the issue*\
 
 #### TimeZones
 You can use this command to retrieve a list of the timezones usable

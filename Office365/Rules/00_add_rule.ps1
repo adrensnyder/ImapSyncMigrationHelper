@@ -134,6 +134,8 @@ function CreateFolder {
 
             $response = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body ($body | ConvertTo-Json) -ContentType "application/json; charset=utf-8"
             Write-Host "`r(Folder created) $messaggio"
+            Start-Sleep -Seconds 2
+            
         } catch {
             $errore = $_
             if ( $errore -like "*(409)*") {
@@ -244,6 +246,8 @@ Import-Csv -Path $file_arg | ForEach-Object {
                     $ruleExist = Get-InboxRule -Mailbox $mailbox | Where-Object { $_.Name -eq $ruleName }
 
                     if ($ruleExist.count -eq 0) {
+
+                        Start-Sleep -Seconds 5
 
                         $newRule = ""
 
