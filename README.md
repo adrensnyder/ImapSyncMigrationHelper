@@ -158,31 +158,43 @@ Edit the $admin variable to remove the delegation from all mailboxes existing in
 - **02_import_mailbox_nolicense.ps1**\
 Populate the file 02_import_mailbox_nolicense.csv with data of new sharebox, room or equipment.
 Start the script with the filename as parameter you want to import and it will create them with max attachments size, international options, and SendAs|SendOnBehalf enabled\
-For a list of TimeZones see the TimeZones section\
+For a list of TimeZones see the TimeZones section
+```
 Usage: .\02_import_mailbox_nolicense.ps1 filename.csv
+```
 - **02_user_settings.ps1**\
 Populate the file 02_user_settings.csv
 It will reset the password, if present (You can leave it empty), change the attachments size and the international options\
-For a list of TimeZones see the TimeZones section\
+For a list of TimeZones see the TimeZones section
+```
 Usage: .\02_user_settings.ps1 filename.csv
+```
 - **03_Change_Domain.ps1**\
 Edit $orig_domain and $dest_domain variables. It will change the primary SMTP domain of all mailboxes
 - **99_CheckMailGuid.ps1** and **99_RetrieveGUIDtoCSV.ps1**\
 There scripts were created to cross check that the GUID used in some procedures match the email address
 - **Alias**\
-Add Aliases to a mailbox\
+Add Aliases to a mailbox
+```
 Usage: .\00_add_alias.ps1 filename.csv
+```
 - **DistributionList**\
-Create, if not exist, a Distribution List and add users to it\
+Create, if not exist, a Distribution List and add users to it
+```
 Usage: .\00_add_mail_lists.ps1 filename.csv
+```
 - **Permissions**\
-Add delegated users to a mailbox\
+Add delegated users to a mailbox
+```
 Usage: .\00_add_alias.ps1 filename.csv
+```
 - **Rules**\
 Create a path in the mailbox and a simple rule\
 NOTE: If using a system folder (Ex. Inbox) check that it exist in every account with the correct language or it will be created.
-If this appen you can move the subfolders created from the webmail to the correct folder and the rule will adapt itself\
-Usage: .\00_add_rule.ps1 filename.csv\
+If this appen you can move the subfolders created from the webmail to the correct folder and the rule will adapt itself
+```
+Usage: .\00_add_rule.ps1 filename.csv
+```
 *WARNING: Test the rules created by the script. In my test, out of 30 rules, 3 of them aren't working correctly. The email results are sent to the correct folder, but there is no message. Editing the rule, reassigning the same folder, and saving solve the issue*
 
 #### TimeZones
