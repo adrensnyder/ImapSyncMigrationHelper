@@ -227,7 +227,3 @@ All this project was created in another language and I've traslated it to englis
 I've tested all the scripts, apart 99_* and Externals, and they works.
 
 Thank you for your patience
-
----
-google-site-verification: google3de94313fed48544.html
-<meta name="google-site-verification" content="TZ_ecZMjsGJKkZ5P5n_RX_LMjBOVxg6_fjGATDGprio" />
