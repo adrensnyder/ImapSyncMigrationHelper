@@ -1,4 +1,4 @@
-# ImapSyncMigrationHelper
+# ImapSync Migration Helper
 The purpose of these tools is to assist in migrating a mail system using ImapSync.
 
 Migration has also been tested to and from Microsoft 365.
