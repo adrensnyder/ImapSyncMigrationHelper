@@ -201,7 +201,7 @@ Usage: .\00_add_rule.ps1 filename.csv
 You can use this command to retrieve a list of the timezones usable
 ```
 # List all available time zones (Edit the Zone variable)
-$Zone = "Eastern Standard Time"
+$Zone = "USA"
 $allTimeZones = [System.TimeZoneInfo]::GetSystemTimeZones()
 
 foreach ($timeZone in $allTimeZones) {
