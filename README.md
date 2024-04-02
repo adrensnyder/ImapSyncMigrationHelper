@@ -151,6 +151,8 @@ All the scripts, apart 00_CreateApp.ps1, request connection to the Tenant. You c
 This procedure will create the needed App that permit ImapSync to connect to 365. Only run it and use an account of the tenant with admin rights
 - **01_Connection_Tenant.ps1**\
 Run it to connect to 365 from a PowerShell console started with admin priviledges
+- **01_Connection_Tenant oAuth2.ps1**\
+Like the original, but enabled for use with OAuth2
 - **02_Add_Admin_To_All.ps1**\
 Edit the $admin variable to assign to it the delegation for all mailboxes existing in the tenant
 - **02_Remove_Admin_From_All.ps1**\
