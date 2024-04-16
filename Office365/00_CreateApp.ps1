@@ -25,7 +25,7 @@
 ###################################################################
 
 Write-Host "It is advisable to start this procedure in the client's Office365 folder created for this job"
-Write-Host "In the last release of Chrome can appen that the webpage opened by oAuth2.0 get redirected to https."
+Write-Host "In the last release of Chrome can appen that the webpage opened by oAuth2.0 get redirected to https"
 Write-Host "Copy the link changing it to http on firefox for every request. Or use Firefox as the default browser"
 Pause
 
