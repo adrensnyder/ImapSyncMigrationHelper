@@ -67,7 +67,7 @@ fi
 cd $PROJECTPATH
 
 # Check files
-FILES_NEEDED="imapsync_wrapper.sh atstart.sh check_migration.sh create_next_schedule.sh main.conf mutt_oauth2.py mail_list"
+FILES_NEEDED="atstart.sh check_migration.sh create_next_schedule.sh main.conf mutt_oauth2.py mail_list"
 FILES_MISSING=""
 for files_needed in $FILES_NEEDED; do
     if [ ! -f "$files_needed" ]; then
