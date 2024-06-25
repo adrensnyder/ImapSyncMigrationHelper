@@ -24,9 +24,9 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 ###################################################################
 
-Write-Host "It is advisable to start this procedure in the client's Office365 folder created for this job"
-Write-Host "In the last release of Chrome can appen that the webpage opened by oAuth2.0 get redirected to https"
-Write-Host "Copy the link changing it to http on firefox for every request. Or use Firefox as the default browser"
+Write-Host -ForegroundColor Red "It is advisable to start this procedure in the client's Office365 folder created for this job"
+Write-Host -ForegroundColor Red "In the last release of Chrome can appen that the webpage opened by oAuth2.0 get redirected to https"
+Write-Host -ForegroundColor Red "Copy the link changing it to http on firefox for every request. Or use Firefox as the default browser"
 Pause
 
 # Variables
@@ -38,7 +38,7 @@ $REPO = "PSGallery"
 #$O365CREDS = New-Object System.Management.Automation.PSCredential $O365CREDS.UserName, $O365CREDS.Password
 
 
-Write-Host "- Installation prerequisites"
+Write-Host -ForegroundColor Green "- Installation prerequisites"
 
 function Install-Modules {
     param (
@@ -63,14 +63,18 @@ Install-Modules -Repo $REPO -ModuleName "AzureAD"
 Install-Modules -Repo $REPO -ModuleName "Az.*"
 Install-Modules -Repo $REPO -ModuleName "Microsoft.PowerApps.Administration.PowerShell"
 Install-Modules -Repo $REPO -ModuleName "Microsoft.Graph"
+
+# We try to install the versions we need
+#Uninstall-Module -Name "Az.Accounts" -AllVersions
+#Uninstall-Module -Name "Az.Resources" -AllVersions
 Install-Modules -Repo $REPO -ModuleName "Az.Accounts" -Version "2.12.1"
 Install-Modules -Repo $REPO -ModuleName "Az.Resources" -Version "6.6.0"
 
-# Downgreade needed modules
+# Downgrade needed modules
 Install-Module -Repository $REPO -Name Az.Accounts -RequiredVersion 2.12.1 -Force 
 Install-Module -Repository $REPO -Name Az.Resources -RequiredVersion 6.6.0 -Force
 
-Write-Host "- Importing modules (This may take some time. Ignore any errors if encountered)"
+Write-Host -ForegroundColor Green "- Importing modules (This may take some time. Ignore any errors if encountered)"
 
 Import-Module Microsoft.PowerApps.Administration.PowerShell
 Import-Module AzureAD
@@ -78,14 +82,15 @@ Import-Module AzureAD
 Start-Sleep -s 10
 
 # Connect to 365 
-Write-Host "- Connecting to 365 (Credentials will be requested multiple times)"
+Write-Host -ForegroundColor Green "- Connecting to 365 (Credentials will be requested multiple times)"
 
+Update-AzConfig -EnableLoginByWam $false # Used to login with MFA present on Connect-AzAccount
 Connect-AzAccount   #-Credential $O365CREDS
 Connect-AzureAD     #-Credential $O365CREDS
 Connect-MgGraph -Scopes 'Application.ReadWrite.All'
 
 # Create the App
-Write-Host "- Creation of the App $NomeApp"
+Write-Host -ForegroundColor Green "- Creation of the App $NomeApp"
 
 $application = New-AzADApplication -DisplayName $NomeApp -ReplyUrls "http://localhost/" -AvailableToOtherTenants $true
 
@@ -99,7 +104,7 @@ $O365OnlineId = Get-MgServicePrincipal -Filter "DisplayName eq 'Office 365 Excha
 $O365OnlineResId = Get-MgServicePrincipal -Filter "DisplayName eq 'Office 365 Exchange Online'" | Select-Object -ExpandProperty AppId
 
 # Enable support for public client flows
-Write-Host "Enable public streams support"
+Write-Host -ForegroundColor Green "Enable public streams support"
 
 $azureAdMsApps = Get-AzureADMSApplication
 $azureAdMsApp = $azureAdMsApps | Where-Object { $_.AppId -eq $applicationId }
@@ -109,7 +114,7 @@ Start-Sleep -s 10
 
 # Create the Secret
 
-Write-Host "Creating the secret"
+Write-Host -ForegroundColor Green "Creating the secret"
 
 $AppSecretDescription = "Secret01"
 $AppYears = "1"
@@ -136,9 +141,9 @@ Write-Output  "Azure AppID: $appazureid" >> .\$NomeOutput
 Write-Output  "Application ID: $applicationId" >> .\$NomeOutput
 Write-Output  "Directory (Tenant) ID: $tenantId" >> .\$NomeOutput
 Write-Output  "Secret: $SecretText" >> .\$NomeOutput
-Write-Host "All the necessary data for ImapSync has been saved in the file $NomeOutput"
+Write-Host -ForegroundColor Green "All the necessary data for ImapSync has been saved in the file $NomeOutput"
 
-Write-Host "- Set up the APIs for the app"
+Write-Host -ForegroundColor Green "- Set up the APIs for the app"
 
 $graphServicePrincipalId = (Get-AzureADServicePrincipal -Filter "AppId eq '$graphId'").ObjectId 
 $appServicePrincipalId = (Get-AzureADServicePrincipal -Filter "AppId eq '$applicationId'").ObjectId 
@@ -162,7 +167,7 @@ $resourceAccessArrayMain = @()
 # Initialize an array for the authorizations
 $resourceAccessArray = @()
 
-Write-Host "Retrieve Graph Scope permissions IDs"
+Write-Host -ForegroundColor Green "Retrieve Graph Scope permissions IDs"
 
 # Populate the array with permissions from $msGraphPermissions
 foreach ($permission in $msGraphPermissionsScope) {
@@ -177,7 +182,7 @@ foreach ($permission in $msGraphPermissionsScope) {
     }
 }
 
-Write-Host "Retrieve Graph Role IDs"
+Write-Host -ForegroundColor Green "Retrieve Graph Role IDs"
 
 foreach ($permission in $msGraphPermissionsRole) {
     $permissionId = (Get-AzureADServicePrincipal -ObjectId $graphId).appRoles | Where-Object {$_.Value -eq $permission} | Select-Object -ExpandProperty Id
@@ -205,7 +210,7 @@ $resourceAccessArrayMain += $newResourceAccessGraph
 # Initialize an array for the authorizations
 $resourceAccessArray = @()
 
-Write-Host "Retrieve the IDs of Office 365 Exchange Online Scope APIs"
+Write-Host -ForegroundColor Green "Retrieve the IDs of Office 365 Exchange Online Scope APIs"
 
 foreach ($permission in $msO365OnlinePermissionsScope) {
     $permissionId = (Get-AzureADServicePrincipal -ObjectId $O365OnlineId).Oauth2Permissions | Where-Object {$_.Value -eq $permission} | Select-Object -ExpandProperty Id
@@ -219,7 +224,7 @@ foreach ($permission in $msO365OnlinePermissionsScope) {
     }
 }
 
-Write-Host "Retrieve the IDs of Office 365 Exchange Online Role permissions"
+Write-Host -ForegroundColor Green "Retrieve the IDs of Office 365 Exchange Online Role permissions"
 
 foreach ($permission in $msO365OnlinePermissionsRole) {
     $permissionId = (Get-AzureADServicePrincipal -ObjectId $O365OnlineId).appRoles | Where-Object {$_.Value -eq $permission} | Select-Object -ExpandProperty Id
@@ -244,7 +249,7 @@ $newResourceAccessO365Online = @{
 
 $resourceAccessArrayMain += $newResourceAccessO365Online
 
-Write-Host "Applying permissions Scope/Role"
+Write-Host -ForegroundColor Green "Applying permissions Scope/Role"
 
 $app = Get-MgApplication -ApplicationId $appazureId
 
@@ -255,7 +260,7 @@ Update-MgApplication -ApplicationId $appazureId -RequiredResourceAccess $resourc
 
 Start-Sleep -s 10
 
-Write-Host "Applying administrator consent for Graph Role APIs"
+Write-Host -ForegroundColor Green "Applying administrator consent for Graph Role APIs"
 
 foreach ($permission in $msGraphPermissionsRole) {
     # Id of the application permission (role)
@@ -273,7 +278,7 @@ foreach ($permission in $msGraphPermissionsRole) {
     New-AzureADServiceAppRoleAssignment -ObjectId $appServicePrincipalId -Id $permissionId -PrincipalId $appServicePrincipalId -ResourceId $aadSpObjectId
 }
 
-Write-Host "Apply administrator consent for Office 365 Exchange Online Role APIs"
+Write-Host -ForegroundColor Green "Apply administrator consent for Office 365 Exchange Online Role APIs"
 
 foreach ($permission in $msO365OnlinePermissionsRole) {
     # Id of the application permission (role)
@@ -291,6 +296,6 @@ foreach ($permission in $msO365OnlinePermissionsRole) {
     New-AzureADServiceAppRoleAssignment -ObjectId $appServicePrincipalId -Id $permissionId -PrincipalId $appServicePrincipalId -ResourceId $aadSpObjectId
 }
 
-Write-Host "-----"
-Write-Host "App creation $NomeApp completed"
-Write-Host "To view it, you can access Azure/Identity in the App Registrations section"
+Write-Host -ForegroundColor Green "-----"
+Write-Host -ForegroundColor Green "App creation $NomeApp completed"
+Write-Host -ForegroundColor Green "To view it, you can access Azure/Identity in the App Registrations section"
