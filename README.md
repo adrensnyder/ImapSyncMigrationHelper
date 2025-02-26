@@ -85,9 +85,9 @@ It is possible to copy data by accessing Microsoft 365 mailboxes.\
 For all the scripts i'm using **Powershell 5.1 Build 22621 Rev. 2506**. Not tested with other versions
 
 Firstly, an administrator account with a license that includes the mailbox is required.
-Afterwards, you will need to create the App in the tenant. There is an automated procedure in the Office365 section.
+Afterwards, you will need to create the App in the tenant. There is an automated procedure in the Microsoft section.
 
-I suggest to create a dedicated folder for every single job, like done for the linux part, and copy the entire folder Office365 from GIT into it.
+I suggest to create a dedicated folder for every single job, like done for the linux part, and copy the entire folder Microsoft from GIT into it.
 
 Open PowerShell, in a Windows PC/Server as an administrator, and run the file 00_CreateApp.ps1. You will need to enter the credentials of the mentioned account.
 You can change the App Name editing the file
@@ -145,7 +145,7 @@ If you want to migrate from 365 to 365, you can:
 The password in mail_list for the 365 account isn't needed but must maintain the structure, so write something like "pass".
 
 #### Tenant and Structure Preparation 
-In the folder Office365, you will find some useful scripts that can be helpful to reduce the time needed to create the structure
+In the folder Microsoft, you will find some useful scripts that can be helpful to reduce the time needed to create the structure
 All the scripts, apart 00_CreateApp.ps1, request connection to the Tenant. You can use 01_Connection_Tenant.ps1 to do it done easy
 
 - **00_CreateApp.ps1**\
