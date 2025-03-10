@@ -93,7 +93,7 @@ Open PowerShell, in a Windows PC/Server as an administrator, and run the file 00
 You can change the App Name editing the file
 
 Now you have to assign delegate access to every mailbox. 
-You can use the script 01_Add_Admin_To_All.ps1 editing the variables needed inside
+You can use the script 02_Add_Admin_To_All.ps1 editing the variables needed inside
 NOTE: If some accounts give the error "BAD: User is authenticated but not connected" try to wait some minutes and restart the script 01_Add_Admin_To_All.ps1.
 
 Returning to Linux, you need to request the token. If you created the app with the script, it would have generated a file containing the Application ID and Secret; otherwise, you will need to retrieve them from the web.
