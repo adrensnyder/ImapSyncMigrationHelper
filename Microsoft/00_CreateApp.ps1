@@ -85,9 +85,14 @@ Start-Sleep -s 10
 Write-Host -ForegroundColor Green "- Connecting to 365 (Credentials will be requested multiple times)"
 
 Update-AzConfig -EnableLoginByWam $false # Used to login with MFA present on Connect-AzAccount
-Connect-AzAccount   #-Credential $O365CREDS
-Connect-AzureAD     #-Credential $O365CREDS
-Connect-MgGraph -Scopes 'Application.ReadWrite.All'
+Connect-AzAccount -UseDeviceAuthentication -Force
+Connect-AzureAD
+$TenantId = (Get-AzContext).Tenant.Id
+
+Write-Host "Trying to disconnect older MgGraph sessions and connect to the tenant $TenantId" -ForegroundColor Green
+Disconnect-MgGraph
+Start-Sleep -Seconds 3
+Connect-MgGraph -TenantId $TenantId -Scopes 'Application.ReadWrite.All'
 
 # Create the App
 Write-Host -ForegroundColor Green "- Creation of the App $NomeApp"
