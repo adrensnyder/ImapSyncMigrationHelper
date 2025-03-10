@@ -92,15 +92,15 @@ I suggest to create a dedicated folder for every single job, like done for the l
 Open PowerShell, in a Windows PC/Server as an administrator, and run the file 00_CreateApp.ps1. You will need to enter the credentials of the mentioned account.
 You can change the App Name editing the file
 
-Now you have to assign delegate access to every mailbox. 
-You can use the script 02_Add_Admin_To_All.ps1 editing the variables needed inside
-NOTE: If some accounts give the error "BAD: User is authenticated but not connected" try to wait some minutes and restart the script 01_Add_Admin_To_All.ps1.
+Now you have to assign delegate access to every mailbox.  
+You can use the script `02_Add_Admin_To_All.ps1` editing the variables needed inside  
+NOTE: If some accounts give the error "BAD: User is authenticated but not connected" try to wait some minutes and restart the script `02_Add_Admin_To_All.ps1`.
 
 Returning to Linux, you need to request the token. If you created the app with the script, it would have generated a file containing the Application ID and Secret; otherwise, you will need to retrieve them from the web.
 
 The secret is not mandatory, but I recommend creating one for security purposes.
 
-Edit the mutt_oauth2.py file, inserting the values mentioned earlier into client_id and client_secret for the Microsoft section.
+Edit the mutt_oauth2.py file, inserting the values mentioned earlier into client_id (Application ID) and client_secret (Secret) for the Microsoft section.
 
 Then, with at least Python 3.8, run the mutt_oauth2.py file with the authorization request.
 ```
@@ -122,6 +122,7 @@ Inside it you will find the Token, the information you inserted and the expire d
 If any error occurs you have to delete the file jobname_token_auth, check the App, check the admin account used and restart the Mutt Authorize command
 
 Now run
+The default token name that will be used is the JOBNAME variable in mail.conf si the script will search for jobname_token_auth
 ```
 ./create_next_schedule.sh
 ```
@@ -130,17 +131,18 @@ The files jobname_token_imapsync, retoken_jobname-job.txt, and retoken_jobname.s
 You can view the job with atq and at -c [ID] to see the details.
 
 The file jobname_token_imapsync contains the token needed by ImapSync to log in to the 365 platform.
+This filename is what you have to insert in the variables TOKEN_ORIG or TOKEN_DEST.
 
 To stop the renew of the Token simply delete the at job with 
 ```
 atrm [ID]
 ```
-
 NOTE:
 If you want to migrate from 365 to 365, you can:
 
 - Try the functions included in the Exchange section for Tenant-to-Tenant migration. (I haven't had much luck, except with the Gmail Tenant to 365 function)
-- Generate the app, create the token with another name using mutt, changing only the jobname in the filename when requesting authorization, and start `./create_next_schedule.sh newjobname_token_auth`. Now, in the main.conf file, change the variables TOKEN_ORIG and TOKEN_DEST.
+- Generate the app, create the token with another name using mutt, changing only the jobname in the filename when requesting authorization, and start `./create_next_schedule.sh newjobname_token_auth`.
+- Now, in the main.conf file, change the variables TOKEN_ORIG or TOKEN_DEST with newjobname_token_imapsync.
 
 The password in mail_list for the 365 account isn't needed but must maintain the structure, so write something like "pass".
 
