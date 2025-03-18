@@ -46,12 +46,16 @@ Install-Modules -Repo $REPO -ModuleName "AzureAD"
 Install-Modules -Repo $REPO -ModuleName "MSOnline"
 Install-Modules -Repo $REPO -ModuleName "ExchangeOnlineManagement"
 Install-Modules -Repo $REPO -ModuleName "MicrosoftTeams"
+if (-not (Get-Module -ListAvailable -Name Microsoft.Graph)) {
+    Install-Module -Repo $REPO -Name Microsoft.Graph -Force -AllowClobber
+}
 
 Import-Module AzureAD
 Import-Module MSOnline 
 Import-Module ExchangeOnlineManagement
 Import-Module MicrosoftTeams
 
+Connect-MgGraph -Scopes "User.ReadWrite.All" | Out-Null
 Connect-MsolService 
 Connect-AzureAD
 Connect-ExchangeOnline -ShowProgress $true
