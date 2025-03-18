@@ -71,7 +71,10 @@ Import-Csv $file_arg | foreach-object {
     if ($mailbox_exist) {
         if ($password) {
             Write-Host "Changing password for $mailbox" -ForegroundColor Green
-            Set-MsolUserPassword -UserPrincipalName $mailbox -NewPassword $password -ForceChangePassword $false
+            #Set-MsolUserPassword -UserPrincipalName $mailbox -NewPassword $password -ForceChangePassword $false - Deprecated
+            #Update-MgUser -UserId $mailbox -PasswordProfile @{Password = $password; ForceChangePasswordNextSignIn = $false} - Need App (WIP)
+            $securePassword = ConvertTo-SecureString -String $password -AsPlainText -Force
+            Set-AzureADUserPassword -ObjectId $mailbox -Password $securePassword
         } else {            
             Write-Host "Password not changed"
         }
