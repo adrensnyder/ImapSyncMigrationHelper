@@ -9,10 +9,10 @@
 # copies of the Software, and to permit persons to whom the
 # Software is furnished to do so, subject to the following
 # conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
-# 
+#
 # DISCLAIMER:
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
@@ -38,8 +38,8 @@ if [[ "X$LOGPATH" == "X" ]]; then
 fi
 
 if [ ! -d $LOGPATH ]; then
-	echo "Enter a valid path for migration logs"
-	echo "Ex. /var/log/imapsync/job/data"
+        echo "Enter a valid path for migration logs"
+        echo "Ex. /var/log/imapsync/job/data"
     exit
 fi
 
@@ -54,26 +54,33 @@ done
 
 LIST_UNIQUE=`echo $LIST_NEW | tr ' ' '\n' | sort -u`
 
-COUNT_LIST=0
-for file in $LIST_UNIQUE; do
-    let "COUNT_LIST=COUNT_LIST+1"
-done
-
 MESSAGESOK_COUNT=0
 GOOD_COUNT=0
 NOTSTRICT_COUNT=0
 NOTFINISHED_COUNT=0
+
+LASTLOGS=()  # inizializza array
+echo -e "- ${RED}File list${NC}"
+
 for file in $LIST_UNIQUE; do
-    LASTLOG=`ls -1 -r "$LOGPATH/$file"* |head -n1`
+    ((COUNT_LIST++))
+    LASTLOG=$(ls -1 -r "$LOGPATH/$file%"* | head -n1)
+    [[ -n "$LASTLOG" ]] && LASTLOGS+=("$LASTLOG")
 
-	MESSAGESOK=$(grep "Messages found in host1 not in host2" $LASTLOG|grep ": 0 messages" |wc -l)
-    GOOD=$(grep "The sync looks good" $LASTLOG|wc -l)
-    NOTSTRICT=$(grep "The sync is not strict" $LASTLOG| wc -l)
-    NOTFINISHED=$(grep "The sync is not finished" $LASTLOG|wc -l)
+    echo "$file -> $LASTLOG"
+done
+echo "----"
 
-	if [ "$MESSAGESOK" -gt "0" ]; then
-		let "MESSAGESOK_COUNT=MESSAGESOK_COUNT+1"
-	fi
+for file in "${LASTLOGS[@]}"; do
+
+    MESSAGESOK=$(grep -a "Messages found in host1 not in host2" "$file"|grep ": 0 messages" |wc -l)
+    GOOD=$(grep -a "The sync looks good" "$file"|wc -l)
+    NOTSTRICT=$(grep -a "The sync is not strict" "$file"| wc -l)
+    NOTFINISHED=$(grep -a "The sync is not finished" "$file"|wc -l)
+
+        if [ "$MESSAGESOK" -gt "0" ]; then
+                let "MESSAGESOK_COUNT=MESSAGESOK_COUNT+1"
+        fi
 
     if [ "$GOOD" -gt "0" ]; then
         let "GOOD_COUNT=GOOD_COUNT+1"
@@ -89,7 +96,7 @@ for file in $LIST_UNIQUE; do
 
 done
 
-ALL_GOOD_NOTFINISHED=`grep "Exiting with return value" $LOGPATH/* |wc -l`
+ALL_GOOD_NOTFINISHED=`grep -a "Exiting with return value" $LOGPATH/* |wc -l`
 
 echo -e "- ${RED}General Stats${NC}"
 echo "Total emails in check: $COUNT_LIST"
@@ -103,64 +110,63 @@ echo "Total emails copied, complete or with errors: $ALL_GOOD_NOTFINISHED"
 echo "----"
 echo -e "${RED}Emails not completed:${NC}"
 
-for file in $LIST_UNIQUE; do
-    LASTLOG=`ls -1 -r "$LOGPATH/$file"* |head -n1`
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep --colour -iTHn "The sync is not finished" $LASTLOG
+for file in "${LASTLOGS[@]}"; do
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "The sync is not finished" "$file"
 done
 
 echo "----"
 echo -e "${RED}- CHECK ERROR LOGIN${NC}"
-for file in $LIST_UNIQUE; do
-    LASTLOG=`ls -1 -r "$LOGPATH/$file"* |head -n1`
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep --colour -iTHn "Error login" $LASTLOG
+
+for file in "${LASTLOGS[@]}"; do
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "Error login" "$file"
 done
 echo "----"
 echo -e "${RED}- CHECK BAD USER (O365)${NC}"
-for file in $LIST_UNIQUE; do
-    LASTLOG=`ls -1 -r "$LOGPATH/$file"* |head -n1`
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep --colour -iTHn "bad user" $LASTLOG
+
+for file in "${LASTLOGS[@]}"; do
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "bad user" "$file"
 done
 echo "----"
 echo -e "${RED}- CHECK EX_OK${NC}"
 EXOK_COUNT=0
-for file in $LIST_UNIQUE; do
-    LASTLOG=`ls -1 -r "$LOGPATH/$file"* |head -n1`
-    EXOK=`grep -i "EX_OK" $LASTLOG|wc -l`
+
+for file in "${LASTLOGS[@]}"; do
+    EXOK=`grep -a -i "EX_OK" "$file"|wc -l`
     if [ "$EXOK" -gt "0" ]; then
         let "EXOK_COUNT=EXOK_COUNT+1"
     fi
 done
 echo $EXOK_COUNT
 echo -e "${RED}- CHECK EXIT_ERR_APPEND${NC}"
-for file in $LIST_UNIQUE; do
-    LASTLOG=`ls -1 -r "$LOGPATH/$file"* |head -n1`
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep --colour -iTHn "EXIT_ERR" $LASTLOG
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep --colour -iTHn "Maximum number of errors.*reached|reached.*Maximum number of errors" $LASTLOG
+
+for file in "${LASTLOGS[@]}"; do
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "EXIT_ERR" "$file"
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "Maximum number of errors.*reached|reached.*Maximum number of errors" "$file"
 done
 echo -e "${RED}- CHECK Err${NC}"
-for file in $LIST_UNIQUE; do
-    LASTLOG=`ls -1 -r "$LOGPATH/$file"* |head -n1`
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep --colour -iTHn -E 'msg.*Err |Err .*msg' $LASTLOG
+
+for file in "${LASTLOGS[@]}"; do
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -E 'msg.*Err |Err .*msg' "$file"
 done
 echo -e "${RED}- CHECK skipped${NC}"
-for file in $LIST_UNIQUE; do
-    LASTLOG=`ls -1 -r "$LOGPATH/$file"* |head -n1`
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep --colour -iTHn -E 'msg.*skipped|skipped.*msg' $LASTLOG
+
+for file in "${LASTLOGS[@]}"; do
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -E 'msg.*skipped|skipped.*msg' "$file"
 done
 echo -e "${RED}- CHECK Status${NC}"
-for file in $LIST_UNIQUE; do
-        LASTLOG=`ls -1 -r "$LOGPATH/$file"* |head -n1`
+
+for file in "${LASTLOGS[@]}"; do
         GREP_RESULT=""
-        GREP_RESULT=`grep --colour -iTHn -E 'Exiting with return value' $LASTLOG |wc -l`
+        GREP_RESULT=`grep -a --colour -iTHn -E 'Exiting with return value' "$file" |wc -l`
         if [ "$GREP_RESULT" -eq "0" ]; then
-                PS_TEST=`ps auxwf |grep imapsync |grep $file|wc -l`
+                PS_TEST=`ps auxwf |grep -a imapsync |grep "$file"|wc -l`
                 if [ "$PS_TEST" -gt "0" ]; then
-                        echo "--> $file Imapsync process is running"
+                        echo "--> "$file" Imapsync process is running"
                 else
-                        echo "--> $file Not completed. Probably terminated cause of an 'Out of memory' error. Try to limit attachments size with --maxsize 150_000_000"
+                        echo "--> "$file" Not completed. Probably terminated cause of an 'Out of memory' error. Try to limit attachments size with --maxsize 150_000_000"
                 fi
         else
-                GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep --colour -iTHn -E 'Exiting with return value' $LASTLOG
+                GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -E 'Exiting with return value' "$file"
         fi
 
 done
