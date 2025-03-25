@@ -96,7 +96,11 @@ for file in "${LASTLOGS[@]}"; do
 
 done
 
-ALL_GOOD_NOTFINISHED=`grep -a "Exiting with return value" $LOGPATH/* |wc -l`
+ALL_GOOD_NOTFINISHED=0
+for file in "${LASTLOGS[@]}"; do
+    GOOD_NOTFINISHED=`grep -a "Exiting with return value" $file |wc -l`
+    let "ALL_GOOD_NOTFINISHED=ALL_GOOD_NOTFINISHED+GOOD_NOTFINISHED"
+done
 
 echo -e "- ${RED}General Stats${NC}"
 echo "Total emails in check: $COUNT_LIST"
