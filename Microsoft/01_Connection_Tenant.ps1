@@ -24,6 +24,10 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 ###################################################################
 
+###################################################################
+# THIS SCRIPT WILL NOT BE UPDATED ANYMORE. USE THE OAUTH2 VERSION
+###################################################################
+
 $REPO = "PSGallery"
 
 $O365CREDS = Get-Credential
