@@ -43,7 +43,8 @@ function Install-Modules {
 }
 
 Install-Modules -Repo $REPO -ModuleName "AzureAD"
-Install-Modules -Repo $REPO -ModuleName "MSOnline"
+# Deprecated
+#Install-Modules -Repo $REPO -ModuleName "MSOnline"
 Install-Modules -Repo $REPO -ModuleName "ExchangeOnlineManagement"
 Install-Modules -Repo $REPO -ModuleName "MicrosoftTeams"
 if (-not (Get-Module -ListAvailable -Name Microsoft.Graph)) {
@@ -51,7 +52,8 @@ if (-not (Get-Module -ListAvailable -Name Microsoft.Graph)) {
 }
 
 Import-Module AzureAD
-Import-Module MSOnline 
+# Deprecated
+#Import-Module MSOnline 
 Import-Module ExchangeOnlineManagement
 Import-Module MicrosoftTeams
 
