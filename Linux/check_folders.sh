@@ -45,7 +45,7 @@ if [ ! -d $LOGPATH ]; then
                             exit
 fi
 
-LIST=$(ls -1 $LOGPATH)
+LIST=$(ls -1 $LOGPATH/*%*)
 
 LIST_NEW=""
 LIST_UNIQUE=""
