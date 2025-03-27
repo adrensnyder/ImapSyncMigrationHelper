@@ -50,6 +50,7 @@ DATE=`which date 2>/dev/null`
 DATENOW=$($DATE '+%Y-%m-%d_%H%M%S')
 
 PROJECTPATH="$JOBPATH/$JOBNAME"
+EXECS="Execs"
 
 FILE_RUN="$FILE_RUN$DATENOW"
 FILE_CREDS="$JOBPATH/$JOBNAME/$FILE_CREDS"
@@ -278,11 +279,14 @@ if [[ "X$DOMAIN_DEST" != "X" ]]; then
         DOMAIN_DEST="@$DOMAIN_DEST"
 fi
 
-# Create a folder named 'data' to store the executable files, distinguishing them from those used previously
-if [ ! -d "Exec_$DATENOW" ]; then
-    mkdir -p "Exec_$DATENOW"
-else
-    rm -f "Exec_$DATENOW/"*
+if [ ! -d "Execs" ]; then
+   mkdir "Execs"
+fi
+
+EXEC_FOLDER="$EXECS/Exec_$DATENOW"
+
+if [ ! -d "$EXEC_FOLDER" ]; then
+    mkdir -p "$EXEC_FOLDER"
 fi
 
 if [[ "X$TOKEN_JOB" == "X" ]]; then
@@ -291,13 +295,22 @@ fi
 
 # Start JOB
 
-IFS=$'\n'
+LINES=($(grep -vE '^#' "$FILE_CREDS" |wc -l))
+DIGITS=${#LINES}
 
+COUNT=0
+
+IFS=$'\n'
 for line in $VAR_CREDS; do
-	if [[ $line =~ ^"#" ]]; then
+	if [[ $line =~ ^# ]]; then
     	continue
     fi
-	
+
+    ((COUNT++))
+
+    PADDED=$(printf "%0${DIGITS}d" "$COUNT")
+    FILE_RUN_BASE="$PADDED""_""$FILE_RUN"
+
     #echo "---"
 
 	MAIL_SOURCE=`echo $line| $AWK '{ print $1 }'`
@@ -324,17 +337,17 @@ for line in $VAR_CREDS; do
 	fi
 
     # Creation of a file with the imapsync startup string
-    echo "#!/bin/sh" > "Exec_$DATENOW/$FILE_RUN-$MAIL_SOURCE.sh"
-    echo "" >> "Exec_$DATENOW/$FILE_RUN-$MAIL_SOURCE.sh"
-	echo 'DATE_NOW=$(date +"%Y-%m-%d_%H-%M")' >> "Exec_$DATENOW/$FILE_RUN-$MAIL_SOURCE.sh"
-    echo "$IMAPSYNC $PARAM --host1 $IP_SOURCE --user1 \"$MAIL_SOURCE$DOMAIN_SOURCE\" --password1 $PASS_SOURCE_OK $SSL_TAG_SOURCE $TLS_TAG_SOURCE $PORT_TAG_SOURCE --host2 $IP_DEST --user2 \"$MAIL_DEST$DOMAIN_DEST\" --password2 $PASS_DEST_OK $SSL_TAG_DEST $TLS_TAG_DEST $PORT_TAG_DEST --logdir $LOGDIR --logfile \"$LOGFILE$MAIL_SOURCE"'%$DATE_NOW'\" >> "Exec_$DATENOW/$FILE_RUN-$MAIL_SOURCE.sh"
+    echo "#!/bin/sh" > "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
+    echo "" >> "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
+	echo 'DATE_NOW=$(date +"%Y-%m-%d_%H-%M")' >> "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
+    echo "$IMAPSYNC $PARAM --host1 $IP_SOURCE --user1 \"$MAIL_SOURCE$DOMAIN_SOURCE\" --password1 $PASS_SOURCE_OK $SSL_TAG_SOURCE $TLS_TAG_SOURCE $PORT_TAG_SOURCE --host2 $IP_DEST --user2 \"$MAIL_DEST$DOMAIN_DEST\" --password2 $PASS_DEST_OK $SSL_TAG_DEST $TLS_TAG_DEST $PORT_TAG_DEST --logdir $LOGDIR --logfile \"$LOGFILE$MAIL_SOURCE"'%$DATE_NOW'\" >> "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
 
     # Granting execution rights for the file
-    chmod 777 "Exec_$DATENOW/$FILE_RUN-$MAIL_SOURCE.sh"
+    chmod 777 "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
 
     if [ "$TOKEN" -eq "1" ]; then
 
-    	$CAT << EOF >> Exec_$DATENOW/$FILE_RUN-$MAIL_SOURCE.sh
+    	$CAT << EOF >> "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
 
 TEST=\`ps auxw |grep ATE-$MAIL_SOURCE.sh|grep -v grep| wc -l\`
 
@@ -344,10 +357,10 @@ fi
 
 EOF
 		if [[ "$LISTFOLDERS" -eq "0" && "$DRY" -eq "0" ]]; then
-                	echo "$PROJECTPATH/Exec_$DATENOW/$FILE_RUN-ATE-$MAIL_SOURCE.sh &" >> "Exec_$DATENOW/$FILE_RUN-$MAIL_SOURCE.sh"
+                	echo "$PROJECTPATH/$EXEC_FOLDER/$FILE_RUN_BASE-ATE-$MAIL_SOURCE.sh &" >> "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
 		fi
 
-        $CAT << EOF > Exec_$DATENOW/$FILE_RUN-ATE-$MAIL_SOURCE.sh
+        $CAT << EOF > "$EXEC_FOLDER/$FILE_RUN_BASE-ATE-$MAIL_SOURCE.sh"
 #!/bin/sh
 
 NUM_PROCESS=$NUM_PROCESS
@@ -375,8 +388,8 @@ if [ "\$FOLDERS_SOURCE" == "\$FOLDERS_DEST" ]; then
 fi
 
 if [[ "\$ATE" -gt 0 || "\$BYE" -gt 0 ]]; then
-        # "Restart Exec_$DATENOW/$FILE_RUN-$MAIL_SOURCE"
-        echo -ne "Waiting for 1 minute before starting the new process $FILE_RUN-$MAIL_SOURCE.sh\r"
+        # "Restart $EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE"
+        echo -ne "Waiting for 1 minute before starting the new process $FILE_RUN_BASE-$MAIL_SOURCE.sh\r"
         sleep 60
 
         PROCESS_LIST=\`ps auxw |grep $IMAPSYNC|grep -v grep|wc -l\`
@@ -387,20 +400,20 @@ if [[ "\$ATE" -gt 0 || "\$BYE" -gt 0 ]]; then
                 PROCESS_LIST=\`ps auxw |grep $IMAPSYNC|grep -v grep|wc -l\`
         done
 
-        $PROJECTPATH/Exec_$DATENOW/$FILE_RUN-$MAIL_SOURCE.sh &
+        $PROJECTPATH/$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh &
 fi
 
 EOF
 
             # Concessione diritti di avvio per il file
-            chmod 777 "Exec_$DATENOW/$FILE_RUN-ATE-$MAIL_SOURCE.sh"
+            chmod 777 "$EXEC_FOLDER/$FILE_RUN_BASE-ATE-$MAIL_SOURCE.sh"
 
         fi
 
 done
 
-LIST_RUN=`ls -1 "Exec_$DATENOW/"*  |grep -v '\-ATE\-'`
-LIST_RUN_COUNT=`ls -1 "Exec_$DATENOW/"*  |grep -v '\-ATE\-' |wc -l`
+LIST_RUN=`ls -1 "$EXEC_FOLDER/"*  |grep -v '\-ATE\-'`
+LIST_RUN_COUNT=`ls -1 "$EXEC_FOLDER/"*  |grep -v '\-ATE\-' |wc -l`
 COUNT=0
 
 for file in $LIST_RUN; do
