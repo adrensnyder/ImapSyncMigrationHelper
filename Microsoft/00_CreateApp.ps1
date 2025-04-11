@@ -132,7 +132,7 @@ Write-Host -ForegroundColor Green "All the necessary data for ImapSync has been 
 Write-Host -ForegroundColor Green "Set up the APIs for the app"
 
 $msGraphPermissionsScope = @("EWS.AccessAsUser.All", "IMAP.AccessAsUser.All", "Mail.Send", "Mail.ReadWrite.Shared", "offline_access", "openid", "POP.AccessAsUser.All", "profile", "SMTP.Send", "User.Read")
-$msGraphPermissionsRole  = @("Mail.Read", "Mail.ReadBasic", "Mail.ReadWrite", "Mail.Send", "Directory.ReadWrite.All", "User.ReadWrite.All")
+$msGraphPermissionsRole  = @("Mail.Read", "Mail.ReadBasic", "Mail.ReadWrite", "Mail.Send")
 
 $msO365OnlinePermissionsScope = @("EWS.AccessAsUser.All")
 $msO365OnlinePermissionsRole  = @("IMAP.AccessAsApp", "Mail.Read", "Mail.ReadWrite", "Mail.Send")
