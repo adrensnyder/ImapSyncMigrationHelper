@@ -41,7 +41,7 @@ if ( [string]::IsNullOrEmpty($file_arg) )  {
 Write-Host "Check that the file $file_arg has been saved in UTF-8 format"
 Pause
 
-$directory = Split-Path -Path $args[0] -Parent
+$directory = Split-Path -Path $file_arg -Parent
 if (-not $directory ) {
         $file_arg = $PSScriptRoot + "\" + $file_arg
 } elseif ( $directory -eq "." ) {
