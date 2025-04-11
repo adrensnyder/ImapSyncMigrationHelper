@@ -24,30 +24,6 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 ###################################################################
 
-# Variable
-$JsonFilePath = "Path\App.Json"
-
-# Check that the JSON file exists
-if (-not (Test-Path $JsonFilePath)) {
-    Write-Error "The file '$JsonFilePath' does not exist. You need to change JsonFilePath variabile with the App Json created with 00_CreateApp.ps1"
-    exit 1
-}
-
-# Read and convert JSON file
-try {
-    $jsonContent = Get-Content -Path $JsonFilePath -Raw | ConvertFrom-Json
-} catch {
-    Write-Error "Failed to parse JSON file: $_"
-    exit 1
-}
-
-$secureSecret = ConvertTo-SecureString $jsonContent.Secret -AsPlainText -Force
-$credential = New-Object System.Management.Automation.PSCredential ($jsonContent.ApplicationID, $secureSecret)
-
-# Display retrieved values (do not print the secret for security reasons)
-Write-Host "Using Tenant ID: $($jsonContent.TenantID)"
-Write-Host "Using Application (Client) ID: $($jsonContent.ApplicationID)"
-
 $REPO = "PSGallery"
 
 function Install-Modules {
