@@ -42,13 +42,13 @@ function Install-Modules {
     )
 
     if (-not (Get-Module -Name $ModuleName -ListAvailable)) {
-        # installa il modulo
+        # install the module
         Install-Module -Name $ModuleName -Force -AllowClobber -Scope CurrentUser -Repository $Repo $Version
     }
     else {
         Write-Host "$ModuleName is already installed"
         if ($Version) {
-            Write-Host "Installazione della versione $Version"
+            Write-Host "Install version $Version"
             Update-Module -Name $ModuleName -Force -RequiredVersion $Version
         }
     }
