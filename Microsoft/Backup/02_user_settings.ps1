@@ -56,7 +56,7 @@ if (-not (Test-Path "$file_arg")) {
 
 Import-Csv $file_arg | foreach-object {
     $mailbox = $_.Account
-    $password = ConvertTo-SecureString $jsonContent.Secret -AsPlainText -Force
+    $password = $_.Password
     $Language = $_.Language
     $DateFormat = $_.DateFormat
     $TimeFormat = $_.TimeFormat
@@ -71,17 +71,10 @@ Import-Csv $file_arg | foreach-object {
     if ($mailbox_exist) {
         if ($password) {
             Write-Host "Changing password for $mailbox" -ForegroundColor Green
-            $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password)
-            $plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
-            [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR)
-
-            $passwordProfile = @{
-                password = $plainPassword
-                forceChangePasswordNextSignIn = $false
-            }
-
-            Update-MgUser -UserId $mailbox -PasswordProfile $passwordProfile
-            
+            #Set-MsolUserPassword -UserPrincipalName $mailbox -NewPassword $password -ForceChangePassword $false - Deprecated
+            #Update-MgUser -UserId $mailbox -PasswordProfile @{Password = $password; ForceChangePasswordNextSignIn = $false} - Need App (WIP)
+            $securePassword = ConvertTo-SecureString -String $password -AsPlainText -Force
+            Set-AzureADUserPassword -ObjectId $mailbox -Password $securePassword
         } else {            
             Write-Host "Password not changed"
         }

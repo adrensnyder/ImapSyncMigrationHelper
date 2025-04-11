@@ -30,16 +30,10 @@ Write-Host -ForegroundColor Red "Copy the link changing it to http on firefox fo
 Pause
 
 # Variables
-$NomeApp = "MailMigration"
-$REPO = "PSGallery"
+$NameApp = "MailManagement"
+$REPO    = "PSGallery"
 
-#Write-Host "- Credential request"
-#$O365CREDS = Get-Credential
-#$O365CREDS = New-Object System.Management.Automation.PSCredential $O365CREDS.UserName, $O365CREDS.Password
-
-
-Write-Host -ForegroundColor Green "- Installation prerequisites"
-
+# Modules
 function Install-Modules {
     param (
         [string]$Repo,
@@ -48,259 +42,187 @@ function Install-Modules {
     )
 
     if (-not (Get-Module -Name $ModuleName -ListAvailable)) {
-        # install the module
+        # installa il modulo
         Install-Module -Name $ModuleName -Force -AllowClobber -Scope CurrentUser -Repository $Repo $Version
-    } else {
+    }
+    else {
         Write-Host "$ModuleName is already installed"
         if ($Version) {
-            Write-Host "Install version $Version"
+            Write-Host "Installazione della versione $Version"
             Update-Module -Name $ModuleName -Force -RequiredVersion $Version
         }
     }
 }
 
-Install-Modules -Repo $REPO -ModuleName "AzureAD" 
-Install-Modules -Repo $REPO -ModuleName "Az.*"
-Install-Modules -Repo $REPO -ModuleName "Microsoft.PowerApps.Administration.PowerShell"
 Install-Modules -Repo $REPO -ModuleName "Microsoft.Graph"
-
-# We try to install the versions we need
-#Uninstall-Module -Name "Az.Accounts" -AllVersions
-#Uninstall-Module -Name "Az.Resources" -AllVersions
-Install-Modules -Repo $REPO -ModuleName "Az.Accounts" -Version "2.12.1"
-Install-Modules -Repo $REPO -ModuleName "Az.Resources" -Version "6.6.0"
-
-# Downgrade needed modules
-Install-Module -Repository $REPO -Name Az.Accounts -RequiredVersion 2.12.1 -Force 
-Install-Module -Repository $REPO -Name Az.Resources -RequiredVersion 6.6.0 -Force
-
-Write-Host -ForegroundColor Green "- Importing modules (This may take some time. Ignore any errors if encountered)"
-
-Import-Module Microsoft.PowerApps.Administration.PowerShell
-Import-Module AzureAD
-
-Start-Sleep -s 10
 
 # Connect to 365 
 Write-Host -ForegroundColor Green "- Connecting to 365 (Credentials will be requested multiple times)"
-
-Update-AzConfig -EnableLoginByWam $false # Used to login with MFA present on Connect-AzAccount
-Connect-AzAccount -UseDeviceAuthentication -Force
-Connect-AzureAD
-$TenantId = (Get-AzContext).Tenant.Id
-
-Write-Host "Trying to disconnect older MgGraph sessions and connect to the tenant $TenantId" -ForegroundColor Green
 Disconnect-MgGraph
-Start-Sleep -Seconds 3
-Connect-MgGraph -TenantId $TenantId -Scopes 'Application.ReadWrite.All'
+Start-Sleep -Seconds 5
+Connect-MgGraph -Scopes 'Application.ReadWrite.All'
+
+$tenant = Get-MgOrganization | Select-Object -First 1
+$TenantId = $tenant.Id
+
+Write-Host "Tenant (Directory) ID: $TenantId" -ForegroundColor Green
 
 # Create the App
-Write-Host -ForegroundColor Green "- Creation of the App $NomeApp"
+Write-Host -ForegroundColor Green "- Creation of the App $NameApp"
 
-$application = New-AzADApplication -DisplayName $NomeApp -ReplyUrls "http://localhost/" -AvailableToOtherTenants $true
+$appParams = @{
+    DisplayName    = $NameApp
+    Web            = @{ RedirectUris = @("http://localhost/") }
+    SignInAudience = "AzureADMultipleOrgs"
+}
+$app = New-MgApplication @appParams
 
-# Obtain the App ID and the Tenant ID
-$appazureid = (Get-AzADApplication -DisplayName $NomeApp).Id
-$applicationId = (Get-AzADApplication -DisplayName $NomeApp).AppId
-$tenantId = (Get-AzContext).Tenant.Id
-$graphId = Get-MgServicePrincipal -Filter "DisplayName eq 'Microsoft Graph'" | Select-Object -ExpandProperty Id
-$graphResId = Get-MgServicePrincipal -Filter "DisplayName eq 'Microsoft Graph'" | Select-Object -ExpandProperty AppId
-$O365OnlineId = Get-MgServicePrincipal -Filter "DisplayName eq 'Office 365 Exchange Online'" | Select-Object -ExpandProperty Id
-$O365OnlineResId = Get-MgServicePrincipal -Filter "DisplayName eq 'Office 365 Exchange Online'" | Select-Object -ExpandProperty AppId
+$appazureid   = $app.Id
+$applicationId = $app.AppId
 
-# Enable support for public client flows
+Write-Host "Azure AppID: $appazureid"
+Write-Host "Application ID: $applicationId"
+
+$appSp = Get-MgServicePrincipal -Filter "appId eq '$applicationId'"
+if (-not $appSp) {
+    $appSp = New-MgServicePrincipal -AppId $applicationId
+}
+$appServicePrincipalId = $appSp.Id
+
+$graphSp = Get-MgServicePrincipal -Filter "DisplayName eq 'Microsoft Graph'" | Select-Object -First 1
+$graphId    = $graphSp.Id
+$graphResId = $graphSp.AppId
+
+$O365OnlineSp = Get-MgServicePrincipal -Filter "DisplayName eq 'Office 365 Exchange Online'" | Select-Object -First 1
+$O365OnlineId    = $O365OnlineSp.Id
+$O365OnlineResId = $O365OnlineSp.AppId
+
 Write-Host -ForegroundColor Green "Enable public streams support"
-
-$azureAdMsApps = Get-AzureADMSApplication
-$azureAdMsApp = $azureAdMsApps | Where-Object { $_.AppId -eq $applicationId }
-Set-AzureADMSApplication -ObjectId $azureAdMsApp.Id -IsFallbackPublicClient $true
-
-Start-Sleep -s 10
-
-# Create the Secret
+Update-MgApplication -ApplicationId $appazureid -PublicClient @{ RedirectUris = @("http://localhost/") }
+Start-Sleep -Seconds 5
 
 Write-Host -ForegroundColor Green "Creating the secret"
 
 $AppSecretDescription = "Secret01"
-$AppYears = "1"
-
+$AppYears = 1
 $PasswordCred = @{
     displayName = $AppSecretDescription
     endDateTime = (Get-Date).AddYears($AppYears)
 }
 
 $Secret = Add-MgApplicationPassword -ApplicationId $appazureid -PasswordCredential $PasswordCred
-$SecretText = $Secret | Select-Object -ExpandProperty SecretText
+$SecretText = $Secret.SecretText
+Start-Sleep -Seconds 5
 
-Start-Sleep -s 5
-
-# Print the details of the application
-
+# Save details to a JSON file so that they can be used by other PowerShell scripts
 $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-$NomeOutput = "365APP_" + "$NomeApp" + "_" + "$timestamp.txt"
+$NameOutput = "365APP_${NameApp}_$timestamp.json"
 
-Write-Output  "Details $NomeApp" > .\$NomeOutput
-Write-Output  "NOTA: Data needed for IMAP migration" >> .\$NomeOutput
-Write-Output  "" >> .\$NomeOutput
-Write-Output  "Azure AppID: $appazureid" >> .\$NomeOutput
-Write-Output  "Application ID: $applicationId" >> .\$NomeOutput
-Write-Output  "Directory (Tenant) ID: $tenantId" >> .\$NomeOutput
-Write-Output  "Secret: $SecretText" >> .\$NomeOutput
-Write-Host -ForegroundColor Green "All the necessary data for ImapSync has been saved in the file $NomeOutput"
-
-Write-Host -ForegroundColor Green "- Set up the APIs for the app"
-
-$graphServicePrincipalId = (Get-AzureADServicePrincipal -Filter "AppId eq '$graphId'").ObjectId 
-$appServicePrincipalId = (Get-AzureADServicePrincipal -Filter "AppId eq '$applicationId'").ObjectId 
-if ($appServicePrincipalId -eq $null) {
-    # create a service principal for the app if it does not exist
-    $appServicePrincipalId = (New-AzureADServicePrincipal -AppId $applicationId).ObjectId
+$appDetails = @{
+    AzureAppID    = $appazureid
+    ApplicationID = $applicationId
+    TenantID      = $TenantId
+    Secret        = $SecretText
+    CreatedOn     = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ss")
 }
 
-$msGraphPermissions = @("Mail.Read", "Mail.ReadBasic", "Mail.ReadBasic.All", "Mail.ReadWrite", "Mail.Send", "EWS.AccessAsUser.All", "IMAP.AccessAsUser.All", "Mail.Send", "offline_access", "openid", "POP.AccessAsUser.All", "profile", "SMTP.Send", "User.Read")
+$appDetails | ConvertTo-Json -Depth 5 | Out-File -FilePath $NameOutput -Encoding UTF8
+Write-Host -ForegroundColor Green "All the necessary data for ImapSync has been saved in the JSON file $NameOutput"
 
-# Definisci i permessi di Microsoft Graph
+Write-Host -ForegroundColor Green "Set up the APIs for the app"
+
 $msGraphPermissionsScope = @("EWS.AccessAsUser.All", "IMAP.AccessAsUser.All", "Mail.Send", "Mail.ReadWrite.Shared", "offline_access", "openid", "POP.AccessAsUser.All", "profile", "SMTP.Send", "User.Read")
-$msGraphPermissionsRole = @("Mail.Read", "Mail.ReadBasic", "Mail.ReadWrite", "Mail.Send")
+$msGraphPermissionsRole  = @("Mail.Read", "Mail.ReadBasic", "Mail.ReadWrite", "Mail.Send", "Directory.ReadWrite.All", "User.ReadWrite.All")
 
 $msO365OnlinePermissionsScope = @("EWS.AccessAsUser.All")
-$msO365OnlinePermissionsRole = @("IMAP.AccessAsApp","Mail.Read","Mail.ReadWrite","Mail.Send")
+$msO365OnlinePermissionsRole  = @("IMAP.AccessAsApp", "Mail.Read", "Mail.ReadWrite", "Mail.Send")
 
-# Initialize a main array
-$resourceAccessArrayMain = @()
-
-# Initialize an array for the authorizations
 $resourceAccessArray = @()
 
 Write-Host -ForegroundColor Green "Retrieve Graph Scope permissions IDs"
-
-# Populate the array with permissions from $msGraphPermissions
 foreach ($permission in $msGraphPermissionsScope) {
-    $permissionId = (Get-AzureADServicePrincipal -ObjectId $graphId).Oauth2Permissions | Where-Object {$_.Value -eq $permission} | Select-Object -ExpandProperty Id
-
-    if ($permissionId -ne $null) {
+    $permObj = $graphSp.Oauth2PermissionScopes | Where-Object { $_.Value -eq $permission }
+    if ($permObj) {
         $resourceAccessArray += @{
-            id   = $permissionId
+            id   = $permObj.Id
             type = "Scope"
-            #name = $permission
         }
     }
 }
 
 Write-Host -ForegroundColor Green "Retrieve Graph Role IDs"
-
 foreach ($permission in $msGraphPermissionsRole) {
-    $permissionId = (Get-AzureADServicePrincipal -ObjectId $graphId).appRoles | Where-Object {$_.Value -eq $permission} | Select-Object -ExpandProperty Id
-
-    if ($permissionId -ne $null) {
+    $permObj = $graphSp.AppRoles | Where-Object { $_.Value -eq $permission }
+    if ($permObj) {
         $resourceAccessArray += @{
-            id   = $permissionId
+            id   = $permObj.Id
             type = "Role"
-            #name = $permission
         }
     }
 }
 
-# Create the object $newResourceAccess
 $newResourceAccessGraph = @{
     ResourceAppId  = $graphResId
     ResourceAccess = $resourceAccessArray
 }
 
-# DEBUG: Print the item RecourceAccess
-# $newResourceAccessGraph.ResourceAccess
-
-$resourceAccessArrayMain += $newResourceAccessGraph
-
-# Initialize an array for the authorizations
 $resourceAccessArray = @()
 
 Write-Host -ForegroundColor Green "Retrieve the IDs of Office 365 Exchange Online Scope APIs"
-
 foreach ($permission in $msO365OnlinePermissionsScope) {
-    $permissionId = (Get-AzureADServicePrincipal -ObjectId $O365OnlineId).Oauth2Permissions | Where-Object {$_.Value -eq $permission} | Select-Object -ExpandProperty Id
-
-    if ($permissionId -ne $null) {
+    $permObj = $O365OnlineSp.Oauth2PermissionScopes | Where-Object { $_.Value -eq $permission }
+    if ($permObj) {
         $resourceAccessArray += @{
-            id   = $permissionId
+            id   = $permObj.Id
             type = "Scope"
-            #name = $permission
         }
     }
 }
 
 Write-Host -ForegroundColor Green "Retrieve the IDs of Office 365 Exchange Online Role permissions"
-
 foreach ($permission in $msO365OnlinePermissionsRole) {
-    $permissionId = (Get-AzureADServicePrincipal -ObjectId $O365OnlineId).appRoles | Where-Object {$_.Value -eq $permission} | Select-Object -ExpandProperty Id
-
-    if ($permissionId -ne $null) {
+    $permObj = $O365OnlineSp.AppRoles | Where-Object { $_.Value -eq $permission }
+    if ($permObj) {
         $resourceAccessArray += @{
-            id   = $permissionId
+            id   = $permObj.Id
             type = "Role"
-            #name = $permission
         }
     }
 }
 
-# Create the object $newResourceAccess
 $newResourceAccessO365Online = @{
     ResourceAppId  = $O365OnlineResId
     ResourceAccess = $resourceAccessArray
 }
 
-# DEBUG: Print the item RecourceAccess 
-# $newResourceAccessO365Online.ResourceAccess
-
-$resourceAccessArrayMain += $newResourceAccessO365Online
+$resourceAccessArrayMain = @($newResourceAccessGraph, $newResourceAccessO365Online)
 
 Write-Host -ForegroundColor Green "Applying permissions Scope/Role"
-
-$app = Get-MgApplication -ApplicationId $appazureId
-
-$existingResourceAccess = $app.RequiredResourceAccess
-
-$existingResourceAccess += $resourceAccessArrayMain
-Update-MgApplication -ApplicationId $appazureId -RequiredResourceAccess $resourceAccessArrayMain
-
-Start-Sleep -s 10
+Update-MgApplication -ApplicationId $appazureid -RequiredResourceAccess $resourceAccessArrayMain
+Start-Sleep -Seconds 5
 
 Write-Host -ForegroundColor Green "Applying administrator consent for Graph Role APIs"
-
 foreach ($permission in $msGraphPermissionsRole) {
-    # Id of the application permission (role)
-    $permissionId = (Get-AzureADServicePrincipal -ObjectId $graphId).appRoles | Where-Object {$_.Value -eq $permission} | Select-Object -ExpandProperty Id
-
-    # Object Id of the concerned Service Principal (could be Graph or SharePoint for example)
-    # (Not the Application Id like "00000003-0000-0ff1-ce00-000000000000" for SharePoint)
-    $aadSpObjectId = $graphId
-
-    #write-host $permission 
-    #write-host $permissionId
-    #write-host $aadSpObjectId
-
-    # Register the application permission
-    New-AzureADServiceAppRoleAssignment -ObjectId $appServicePrincipalId -Id $permissionId -PrincipalId $appServicePrincipalId -ResourceId $aadSpObjectId
+    $permObj = $graphSp.AppRoles | Where-Object { $_.Value -eq $permission }
+    if ($permObj) {
+        $permissionId = $permObj.Id
+        $aadSpObjectId = $graphId  # Service Principal di Microsoft Graph
+        New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $appServicePrincipalId `
+            -AppRoleId $permissionId -PrincipalId $appServicePrincipalId -ResourceId $aadSpObjectId
+    }
 }
 
 Write-Host -ForegroundColor Green "Apply administrator consent for Office 365 Exchange Online Role APIs"
-
 foreach ($permission in $msO365OnlinePermissionsRole) {
-    # Id of the application permission (role)
-    $permissionId = (Get-AzureADServicePrincipal -ObjectId $O365OnlineId).appRoles | Where-Object {$_.Value -eq $permission} | Select-Object -ExpandProperty Id
-
-    # Object Id of the concerned Service Principal (could be Graph or SharePoint for example)
-    # (Not the Application Id like "00000003-0000-0ff1-ce00-000000000000" for SharePoint)
-    $aadSpObjectId = $O365OnlineId
-
-    #write-host $permission 
-    #write-host $permissionId
-    #write-host $aadSpObjectId
-
-    # Register the application permission
-    New-AzureADServiceAppRoleAssignment -ObjectId $appServicePrincipalId -Id $permissionId -PrincipalId $appServicePrincipalId -ResourceId $aadSpObjectId
+    $permObj = $O365OnlineSp.AppRoles | Where-Object { $_.Value -eq $permission }
+    if ($permObj) {
+        $permissionId = $permObj.Id
+        $aadSpObjectId = $O365OnlineId
+        New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $appServicePrincipalId `
+            -AppRoleId $permissionId -PrincipalId $appServicePrincipalId -ResourceId $aadSpObjectId
+    }
 }
 
 Write-Host -ForegroundColor Green "-----"
-Write-Host -ForegroundColor Green "App creation $NomeApp completed"
+Write-Host -ForegroundColor Green "App creation $NameApp completed"
 Write-Host -ForegroundColor Green "To view it, you can access Azure/Identity in the App Registrations section"
