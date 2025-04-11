@@ -52,7 +52,7 @@ Import-Module ExchangeOnlineManagement
 Connect-ExchangeOnline -ShowProgress $true
 Disconnect-MgGraph
 Start-Sleep -Seconds 5
-Connect-MgGraph "User.ReadWrite" "User-PasswordProfile.ReadWrite.All" "User-Mail.ReadWrite.All" "Directory.ReadWrite.All" "DeviceManagementServiceConfig.ReadWrite.All" "DeviceManagementManagedDevices.ReadWrite.All" "DeviceManagementConfiguration.ReadWrite.All"
+Connect-MgGraph "User.ReadWrite", "User-PasswordProfile.ReadWrite.All", "User-Mail.ReadWrite.All", "Directory.ReadWrite.All", "DeviceManagementServiceConfig.ReadWrite.All", "DeviceManagementManagedDevices.ReadWrite.All", "DeviceManagementConfiguration.ReadWrite.All"
 
 try {
     $org = Get-MgOrganization | Select-Object -First 1
