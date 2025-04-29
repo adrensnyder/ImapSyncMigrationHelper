@@ -56,7 +56,10 @@ if (-not (Test-Path "$file_arg")) {
 
 Import-Csv $file_arg | foreach-object {
     $mailbox = $_.Account
-    $password = ConvertTo-SecureString $_.Password -AsPlainText -Force
+    $password = ""
+    if ($_.Password) {
+        $password = ConvertTo-SecureString $_.Password -AsPlainText -Force
+    }
     $Language = $_.Language
     $DateFormat = $_.DateFormat
     $TimeFormat = $_.TimeFormat
