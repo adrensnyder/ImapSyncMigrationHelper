@@ -220,9 +220,10 @@ foreach ($timeZone in $allTimeZones) {
 I have not tested this procedure with Gmail. You surely need to create an App and use mutt_oauth2 in a similar way as explained for 365. Probably the rest of the procedure will be the same.
 
 ## TODO
-NOTE: I program in my spare time but i will try to update those scripts asap.
-- Add more options to the Rules scripts (Like Subject)
-- Verify and integration of token management https://imapsync.lamiral.info/oauth2/oauth2_office365/ 
+NOTE: I program in my spare time but i will try to update those scripts asap.  
+- Add more options to the Rules scripts (Like Subject)  
+- Verify and integration of token management https://imapsync.lamiral.info/oauth2/oauth2_office365/ (Need updated links)  
+- **[Done]** ~Rework some scripts after the deprecation of MSOnline and AzureAD commands
 - **[Done]** ~Add language option for single row and not the entire conversion in sharebox|users_settings~\
 - **[Done]** ~Convert Alias|DistributionList|Permissions to use a single file with all the operations like Rules script~
 
