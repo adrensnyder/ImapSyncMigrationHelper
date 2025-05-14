@@ -222,8 +222,8 @@ I have not tested this procedure with Gmail. You surely need to create an App an
 
 ## TODO
 NOTE: I program in my spare time but i will try to update those scripts asap.  
-- Add more options to the Rules scripts (Like Subject)  
-- Verify and integration of token management https://imapsync.lamiral.info/oauth2/oauth2_office365/ (Need updated links)  
+- **[Not needed for now]** ~Verify and integration of token management [https://imapsync.lamiral.info/oauth2/oauth2_office365](https://imapsync.lamiral.info/oauth2/oauth2_imap/)~  
+	- *I've tested on linux and seems it works in a similar way of mutt script but it requires many packages*
 - **[Done]** ~Rework some scripts after the deprecation of MSOnline and AzureAD commands~
 - **[Done]** ~Add language option for single row and not the entire conversion in sharebox|users_settings~
 - **[Done]** ~Convert Alias|DistributionList|Permissions to use a single file with all the operations like Rules script~
