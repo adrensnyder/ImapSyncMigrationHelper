@@ -35,10 +35,10 @@ function Install-Modules {
     $REPO="PSGallery"
     if (-not (Get-Module -Name $ModuleName -ListAvailable)) {
         # install the module
-        Write-Host "Install $ModuleName"
+        Write-Host -ForegroundColor Green "Install $ModuleName"
         Install-Module -Name $ModuleName -Force -AllowClobber -Scope CurrentUser -Repository $Repo
     } else {
-        Write-Host "$ModuleName is already installed."
+        Write-Host -ForegroundColor Green "$ModuleName is already installed."
     }
 }
 
@@ -47,16 +47,20 @@ if (-not (Get-Module -ListAvailable -Name Microsoft.Graph)) {
     Install-Module -Repo $REPO -Name Microsoft.Graph -Force -AllowClobber
 }
 
+Write-Host -ForegroundColor Green "Import modules"
 Import-Module ExchangeOnlineManagement
 
+Write-Host -ForegroundColor Green "Connect ExchangeOnLine"
 Connect-ExchangeOnline -ShowProgress $true
+Write-Host -ForegroundColor Green "Disconnect Graph"
 Disconnect-MgGraph
 Start-Sleep -Seconds 5
-Connect-MgGraph "User.ReadWrite", "User-PasswordProfile.ReadWrite.All", "User-Mail.ReadWrite.All", "Directory.ReadWrite.All", "DeviceManagementServiceConfig.ReadWrite.All", "DeviceManagementManagedDevices.ReadWrite.All", "DeviceManagementConfiguration.ReadWrite.All"
+Write-Host -ForegroundColor Green "Connect Graph"
+Connect-MgGraph "User.ReadWrite", "User-PasswordProfile.ReadWrite.All", "User-Mail.ReadWrite.All", "Directory.ReadWrite.All", "DeviceManagementServiceConfig.ReadWrite.All", "DeviceManagementManagedDevices.ReadWrite.All", "DeviceManagementConfiguration.ReadWrite.All"  -ContextScope Process
 
 try {
     $org = Get-MgOrganization | Select-Object -First 1
-    Write-Host "Organization Display Name: $($org.DisplayName)"
+    Write-Host -ForegroundColor Green "Organization Display Name: $($org.DisplayName)"
 } catch {
-    Write-Error "Failed to retrieve organization info: $_"
+    Write-Error -ForegroundColor Red "Failed to retrieve organization info: $_"
 }
