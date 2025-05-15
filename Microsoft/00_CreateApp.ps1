@@ -57,13 +57,16 @@ function Install-Modules {
 Install-Modules -Repo $REPO -ModuleName "Microsoft.Graph"
 
 # Connect to 365 
-Write-Host -ForegroundColor Green "- Connecting to 365 (Credentials will be requested multiple times)"
+Write-Host -ForegroundColor Green "- Disconnect from Graph"
 Disconnect-MgGraph
 Start-Sleep -Seconds 5
-Connect-MgGraph -Scopes 'Application.ReadWrite.All'
+Write-Host -ForegroundColor Green "- Connecting to 365 (Credentials will be requested multiple times)"
+Connect-MgGraph -Scopes "Application.ReadWrite.All", "DelegatedPermissionGrant.ReadWrite.All", "AppRoleAssignment.ReadWrite.All" -ContextScope Process
 
 $tenant = Get-MgOrganization | Select-Object -First 1
 $TenantId = $tenant.Id
+$TenantDomain = ($tenant.VerifiedDomains | Where-Object { $_.IsDefault -eq $true }).Name
+$TenantOnMicrosoftDomain = ($tenant.VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft\.com$' }).Name
 
 Write-Host "Tenant (Directory) ID: $TenantId" -ForegroundColor Green
 
@@ -122,6 +125,8 @@ $appDetails = @{
     AzureAppID    = $appazureid
     ApplicationID = $applicationId
     TenantID      = $TenantId
+    TenantDomain  = $TenantDomain
+    TenantOnMicrosoftCom = $TenantOnMicrosoftDomain
     Secret        = $SecretText
     CreatedOn     = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ss")
 }
@@ -131,8 +136,8 @@ Write-Host -ForegroundColor Green "All the necessary data for ImapSync has been 
 
 Write-Host -ForegroundColor Green "Set up the APIs for the app"
 
-$msGraphPermissionsScope = @("EWS.AccessAsUser.All", "IMAP.AccessAsUser.All", "Mail.Send", "Mail.ReadWrite.Shared", "offline_access", "openid", "POP.AccessAsUser.All", "profile", "SMTP.Send", "User.Read")
-$msGraphPermissionsRole  = @("Mail.Read", "Mail.ReadBasic", "Mail.ReadWrite", "Mail.Send")
+$msGraphPermissionsScope = @("EWS.AccessAsUser.All", "IMAP.AccessAsUser.All", "Mail.Send", "Mail.ReadWrite.Shared", "offline_access", "openid", "POP.AccessAsUser.All", "profile", "SMTP.Send", "User.Read", "Sites.ReadWrite.All", "Sites.Manage.All", "Files.ReadWrite.All")
+$msGraphPermissionsRole  = @("Mail.Read", "Mail.ReadBasic", "Mail.ReadWrite", "Mail.Send", "Group.Create", "Group.Read.All", "Group.ReadWrite.All", "GroupMember.Read.All", "GroupMember.ReadWrite.All", "Directory.ReadWrite.All", "Sites.ReadWrite.All", "Sites.Manage.All", "Files.ReadWrite.All")
 
 $msO365OnlinePermissionsScope = @("EWS.AccessAsUser.All")
 $msO365OnlinePermissionsRole  = @("IMAP.AccessAsApp", "Mail.Read", "Mail.ReadWrite", "Mail.Send")
