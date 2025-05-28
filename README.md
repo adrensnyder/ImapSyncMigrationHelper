@@ -83,7 +83,8 @@ NOTE: I suggest to schedule the job only after a successful first migration
 ### Microsoft 365
 It is possible to copy data by accessing Microsoft 365 mailboxes.\
 All the scripts are originally created using **Powershell 5.1 Build 22621 Rev. 2506**.  
-After the update to Graph use i've tested App creation and some other scripts on **Powershell 7.5.0** and seems working correctly. I suggest to use the latest 7.5.x version  
+After the update to Graph use i've tested App creation and some other scripts on **Powershell 7.5.0** and seems working correctly.
+I suggest to use the latest 7.5.x version.  
 
 Firstly, an administrator account with a license that includes the mailbox is required.
 Afterwards, you will need to create the App in the tenant. There is an automated procedure in the Microsoft section.
