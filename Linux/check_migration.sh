@@ -163,7 +163,7 @@ for file in "${LASTLOGS[@]}"; do
         GREP_RESULT=""
         GREP_RESULT=`grep -a --colour -iTHn -E 'Exiting with return value' "$file" |wc -l`
         if [ "$GREP_RESULT" -eq "0" ]; then
-                PS_TEST=`ps auxwf |grep -a imapsync |grep "$file"|wc -l`
+                PS_TEST=`ps auxwf |grep -a imapsync |grep $(basename "$file")|wc -l`
                 if [ "$PS_TEST" -gt "0" ]; then
                         echo "--> "$file" Imapsync process is running"
                 else
