@@ -322,7 +322,7 @@ for line in $VAR_CREDS; do
 	MAIL_DEST=`echo $line| $AWK '{ print $3 }'`
 	PASS_DEST=`echo $line| $AWK '{ print $4 }'`
 
-	PARAM_CUSTOM=`echo $line| $AWK '{ print $5 }'`
+	PARAM_CUSTOM=$(echo "$line" | grep -oP '"\K[^"]+')
 
 	if [[ "$MAIL_DEST" == "" ]]; then
 		MAIL_DEST=$MAIL_SOURCE
