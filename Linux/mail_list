@@ -2,5 +2,5 @@
 # In case of 365 account use a fake password. 365 will use the app with token and not the password written here
 # The params part need to be inside ""
 #
-#orig             passorig	  dest			        passdest    params
-user1@domain.com	passorig		user1@domain.com	passdest    "imapsync params"
+#orig  passorig  dest  passdest  params
+user1@domain.com  passorig  user1@domain.com  passdest  "imapsync params"
