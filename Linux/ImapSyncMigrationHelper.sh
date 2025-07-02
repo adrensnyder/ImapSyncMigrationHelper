@@ -311,24 +311,23 @@ for line in $VAR_CREDS; do
     PADDED=$(printf "%0${DIGITS}d" "$COUNT")
     FILE_RUN_BASE="$PADDED""_""$FILE_RUN"
 
-    #echo "---"
-
 	MAIL_SOURCE=`echo $line| $AWK '{ print $1 }'`
-    PASS_SOURCE=`echo $line| $AWK '{ print $2 }'`
+        PASS_SOURCE=`echo $line| $AWK '{ print $2 }'`
 
-	MAIL_DEST=""
-	PASS_DEST=""
+        MAIL_DEST=`echo $line| $AWK '{ print $3 }'`
+        PASS_DEST=`echo $line| $AWK '{ print $4 }'`
 
-	MAIL_DEST=`echo $line| $AWK '{ print $3 }'`
-	PASS_DEST=`echo $line| $AWK '{ print $4 }'`
+        PARAM_CUSTOM=$(echo "$line" | grep -oP '"\K[^"]+')
 
-	PARAM_CUSTOM=$(echo "$line" | grep -oP '"\K[^"]+')
+        if [[ "X$MAIL_SOURCE" == "X" || "X$PASS_SOURCE" == "X" || "X$MAIL_DEST" == "X" || "X$PASS_DEST" == "X" ]]; then
+                echo "Some required data are missing:"
+                echo "MAIL SOURCE: $MAIL_SOURCE"
+                echo "PASS_SOURCE: $PASS_SOURCE"
+                echo "MAIL_DEST: $MAIL_DEST"
+                echo "PASS_DEST: $PASS_DEST"
+                exit 1
+        fi
 
-	if [[ "$MAIL_DEST" == "" ]]; then
-		MAIL_DEST=$MAIL_SOURCE
-		PASS_DEST=$PASS_SOURCE
-	fi
-		
 	PASS_SOURCE_OK="\"$PASS_SOURCE\""
 	if [ "$PASS_COMP_ORIG" -eq "1" ]; then
 		PASS_SOURCE_OK="'"'"'$PASS_SOURCE'"'"'"
