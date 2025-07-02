@@ -322,6 +322,8 @@ for line in $VAR_CREDS; do
 	MAIL_DEST=`echo $line| $AWK '{ print $3 }'`
 	PASS_DEST=`echo $line| $AWK '{ print $4 }'`
 
+	PARAM_CUSTOM=`echo $line| $AWK '{ print $5 }'`
+
 	if [[ "$MAIL_DEST" == "" ]]; then
 		MAIL_DEST=$MAIL_SOURCE
 		PASS_DEST=$PASS_SOURCE
@@ -340,7 +342,7 @@ for line in $VAR_CREDS; do
     echo "#!/bin/sh" > "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
     echo "" >> "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
 	echo 'DATE_NOW=$(date +"%Y-%m-%d_%H-%M")' >> "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
-    echo "$IMAPSYNC $PARAM --host1 $IP_SOURCE --user1 \"$MAIL_SOURCE$DOMAIN_SOURCE\" --password1 $PASS_SOURCE_OK $SSL_TAG_SOURCE $TLS_TAG_SOURCE $PORT_TAG_SOURCE --host2 $IP_DEST --user2 \"$MAIL_DEST$DOMAIN_DEST\" --password2 $PASS_DEST_OK $SSL_TAG_DEST $TLS_TAG_DEST $PORT_TAG_DEST --logdir $LOGDIR --logfile \"$LOGFILE$MAIL_SOURCE""_$COUNT"'%$DATE_NOW'\" >> "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
+    echo "$IMAPSYNC $PARAM $PARAM_CUSTOM --host1 $IP_SOURCE --user1 \"$MAIL_SOURCE$DOMAIN_SOURCE\" --password1 $PASS_SOURCE_OK $SSL_TAG_SOURCE $TLS_TAG_SOURCE $PORT_TAG_SOURCE --host2 $IP_DEST --user2 \"$MAIL_DEST$DOMAIN_DEST\" --password2 $PASS_DEST_OK $SSL_TAG_DEST $TLS_TAG_DEST $PORT_TAG_DEST --logdir $LOGDIR --logfile \"$LOGFILE$MAIL_SOURCE""_$COUNT"'%$DATE_NOW'\" >> "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
 
     # Granting execution rights for the file
     chmod 777 "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
