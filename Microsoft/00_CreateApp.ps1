@@ -101,7 +101,14 @@ $O365OnlineId    = $O365OnlineSp.Id
 $O365OnlineResId = $O365OnlineSp.AppId
 
 Write-Host -ForegroundColor Green "Enable public streams support"
-Update-MgApplication -ApplicationId $appazureid -PublicClient @{ RedirectUris = @("http://localhost/") }
+$body = @{
+    publicClient = @{
+        redirectUris = @("http://localhost/")
+    }
+    isFallbackPublicClient = $true
+}
+
+Update-MgApplication -ApplicationId $appazureid -BodyParameter $body
 Start-Sleep -Seconds 5
 
 Write-Host -ForegroundColor Green "Creating the secret"
