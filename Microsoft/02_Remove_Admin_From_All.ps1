@@ -27,7 +27,7 @@
 $access = "FullAccess"
 $admin = "admin@domain.com"
 
-Get-Mailbox | Select-Object UserPrincipalName | ForEach-Object {
+Get-Mailbox -ResultSize Unlimited -RecipientTypeDetails UserMailbox, SharedMailbox | Select-Object UserPrincipalName | ForEach-Object {
 	if ( $admin -ne $($_.UserPrincipalName)) {
 		Write-Host -ForegroundColor Green "Removing permission for account $($_.UserPrincipalName)"
 		Remove-MailboxPermission -Identity $($_.UserPrincipalName) -User $admin -AccessRights $access -confirm:$false 
