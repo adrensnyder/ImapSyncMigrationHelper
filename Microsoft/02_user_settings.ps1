@@ -100,6 +100,7 @@ Import-Csv $file_arg | foreach-object {
         Get-Mailbox $mailbox | Get-MailboxRegionalConfiguration | Set-MailboxRegionalConfiguration -Language $Language -DateFormat $DateFormat -TimeFormat $TimeFormat -TimeZone $TimeZone -LocalizeDefaultFolderName:$true
         Write-Host "Changing attachments size for $mailbox"
         Set-Mailbox -Identity $mailbox -MaxReceiveSize $maxSize -MaxSendSize $maxSize
+        Write-Host "Changing Retain Deleted Item for $mailbox"
         Set-Mailbox -Identity $mailbox -RetainDeletedItemsFor $retention
     } else {
         Write-Host -Foreground Red "The account $mailbox not have a mailbox"
