@@ -31,6 +31,12 @@
 #    Write-Host "Id: $($timeZone.Id), Display Name: $($timeZone.DisplayName), Standard Name: $($timeZone.StandardName)"
 #}
 
+# Variables
+$maxSize = 150MB
+$retention_days = 30
+
+# Main
+
 $file_arg = $args[0]
 
 if ( [string]::IsNullOrEmpty($file_arg) )  {
@@ -53,6 +59,8 @@ if (-not (Test-Path "$file_arg")) {
     Write-Host "The file $file_arg not exist. Must be in the same folder of this script. Use only the filename as parameter"
     exit
 }
+
+$retention = [TimeSpan]::FromDays($retention_days)
 
 Import-Csv $file_arg | foreach-object {
     $mailbox = $_.Account
@@ -91,7 +99,8 @@ Import-Csv $file_arg | foreach-object {
         Write-Host "Changing the language for $mailbox"
         Get-Mailbox $mailbox | Get-MailboxRegionalConfiguration | Set-MailboxRegionalConfiguration -Language $Language -DateFormat $DateFormat -TimeFormat $TimeFormat -TimeZone $TimeZone -LocalizeDefaultFolderName:$true
         Write-Host "Changing attachments size for $mailbox"
-        Set-Mailbox -Identity $mailbox -MaxReceiveSize 150MB -MaxSendSize 150MB
+        Set-Mailbox -Identity $mailbox -MaxReceiveSize $maxSize -MaxSendSize $maxSize
+        Set-Mailbox -Identity $mailbox -RetainDeletedItemsFor $retention
     } else {
         Write-Host -Foreground Red "The account $mailbox not have a mailbox"
     }
