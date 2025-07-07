@@ -30,7 +30,8 @@ $automapping = $false
 
 get-mailbox | Select-Object UserPrincipalName | ForEach-Object {
 	if ( $admin -ne $($_.UserPrincipalName)) {
-		Write-Host "Adding permission for account $($_.UserPrincipalName)"
+		Write-Host -ForegroundColor Green "Adding permission for account $($_.UserPrincipalName)"
 		Add-MailboxPermission -Identity $($_.UserPrincipalName) -User $admin -AccessRights $access -AutoMapping $automapping
+		Write-Host ""
 	}
 }
