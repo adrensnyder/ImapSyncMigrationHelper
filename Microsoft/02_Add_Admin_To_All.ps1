@@ -28,10 +28,10 @@ $access = "FullAccess"
 $admin = "admin@domain.com"
 $automapping = $false
 
-get-mailbox | Select-Object UserPrincipalName | ForEach-Object {
-	if ( $admin -ne $($_.UserPrincipalName)) {
-		Write-Host -ForegroundColor Green "Adding permission for account $($_.UserPrincipalName)"
-		Add-MailboxPermission -Identity $($_.UserPrincipalName) -User $admin -AccessRights $access -AutoMapping $automapping
-		Write-Host ""
-	}
+Get-Mailbox -ResultSize Unlimited -RecipientTypeDetails UserMailbox, SharedMailbox | Select-Object UserPrincipalName | ForEach-Object {
+    if ($admin -ne $_.UserPrincipalName) {
+        Write-Host -ForegroundColor Green "Adding permission for account $($_.UserPrincipalName)"
+        Add-MailboxPermission -Identity $_.UserPrincipalName -User $admin -AccessRights $access -AutoMapping:$automapping
+        Write-Host ""
+    }
 }
