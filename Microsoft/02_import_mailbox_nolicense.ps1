@@ -31,6 +31,12 @@
 #    Write-Host "Id: $($timeZone.Id), Display Name: $($timeZone.DisplayName), Standard Name: $($timeZone.StandardName)"
 #}
 
+# Variables
+$maxSize = 150MB
+$retention_days = 30
+
+# Main
+
 $file_arg = $args[0]
 
 if ( [string]::IsNullOrEmpty($file_arg) )  {
@@ -54,6 +60,7 @@ if (-not (Test-Path "$file_arg")) {
     exit
 }
 
+$retention = [TimeSpan]::FromDays($retention_days)
 
 Import-Csv $file_arg | foreach-object {
     $Account = $_.Account
@@ -88,8 +95,10 @@ Import-Csv $file_arg | foreach-object {
         Get-Mailbox $Alias | Get-MailboxRegionalConfiguration | Set-MailboxRegionalConfiguration -Language $Language -DateFormat $DateFormat -TimeFormat $TimeFormat -TimeZone $TimeZone -LocalizeDefaultFolderName:$true
         Start-Sleep -s 2
         Write-Host "Changing attachments size for $Type $Alias"
-        Set-Mailbox -Identity $Alias -MaxReceiveSize 150MB -MaxSendSize 150MB
+        Set-Mailbox -Identity $Alias -MaxReceiveSize $maxSize -MaxSendSize $maxSize
         Start-Sleep -s 2
+        Write-Host "Changing Retain Deleted Item for $Type $Alias"
+        Set-Mailbox -Identity $mailbox -RetainDeletedItemsFor $retention
         Write-Host "Changing SentAs mailbox $Type $Alias"
         set-mailbox $Alias -MessageCopyForSentAsEnabled $True
         Start-Sleep -s 2
