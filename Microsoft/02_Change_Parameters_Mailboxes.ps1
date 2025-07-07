@@ -26,7 +26,7 @@
 
 # Print actual status
 Write-Host "Actual status of mailboxes:" -ForegroundColor Yellow
-Get-Mailbox -ResultSize Unlimited | ft DisplayName, MaxSendSize, MaxReceiveSize, RetainDeletedItemsFor
+Get-Mailbox -ResultSize Unlimited -RecipientTypeDetails UserMailbox, SharedMailbox | ft DisplayName, RecipientTypeDetails, MaxSendSize, MaxReceiveSize, RetainDeletedItemsFor
 
 # Parameters
 $maxSize = 150MB
@@ -34,7 +34,7 @@ $retention_days = 30
 
 # Main
 $retention = [TimeSpan]::FromDays($retention_days)
-$mailboxes = Get-Mailbox -ResultSize Unlimited
+$mailboxes = Get-Mailbox -ResultSize Unlimited -RecipientTypeDetails UserMailbox, SharedMailbox
 
 # Loop through each mailbox
 foreach ($mbx in $mailboxes) {
