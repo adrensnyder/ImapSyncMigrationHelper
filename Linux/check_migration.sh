@@ -150,7 +150,8 @@ done
 echo -e "${RED}- CHECK Err${NC}"
 
 for file in "${LASTLOGS[@]}"; do
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -E 'msg.*Err |Err .*msg' "$file"
+    #GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -E 'msg.*Err |Err .*msg' "$file"
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -P '^Err ' "$file"
 done
 echo -e "${RED}- CHECK skipped${NC}"
 
