@@ -55,4 +55,4 @@ foreach ($mbx in $mailboxes) {
 
 # Print result status
 Write-Host "Result status of mailboxes:" -ForegroundColor Yellow
-Get-Mailbox -ResultSize Unlimited | ft DisplayName, MaxSendSize, MaxReceiveSize, RetainDeletedItemsFor
+Get-Mailbox -ResultSize Unlimited -RecipientTypeDetails UserMailbox, SharedMailbox | ft DisplayName, RecipientTypeDetails, MaxSendSize, MaxReceiveSize, RetainDeletedItemsFor
