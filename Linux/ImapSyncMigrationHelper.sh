@@ -32,19 +32,23 @@ AWK=`which awk 2>/dev/null`
 YUM=`which yum 2>/dev/null`
 MKDIR=`which mkdir 2>/dev/null`
 
+# MAIN
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 IMAPSYNC=`which imapsync 2>/dev/null`
 if [ "$?" -ne "0" ]; then
     echo "Install first latest version of imapsync"
     exit
 fi
 
-if [ ! -f main.conf ]; then
+if [ ! -f "$BASE_DIR/main.conf" ]; then
     echo "File main.conf missing. Redownload it from GIT"
-    exit	
+    exit 1
 fi
 
+
 # Load configuration
-source main.conf
+source $BASE_DIR/main.conf
 
 DATE=`which date 2>/dev/null`
 DATENOW=$($DATE '+%Y-%m-%d_%H%M%S')
@@ -437,12 +441,12 @@ for file in $LIST_RUN; do
 	DATE_TIME=$($DATE '+%Y-%m-%d %H:%M')
 
     let "COUNT=COUNT+1"
-    echo "$DATE_TIME ($COUNT/$LIST_RUN_COUNT - Running processes: $PROCESS_LIST): $file started"
+    echo "$DATE_TIME ($COUNT/$LIST_RUN_COUNT - Running processes: $PROCESS_LIST): $PROJECTPATH/$file started"
 
     TEST=`ps auxw |grep $file|grep -v grep| wc -l`
 
     if [ "$TEST" -gt 0 ]; then
-    	echo -ne "Waiting 5 seconds. I will proceed to the next job since the file $file is already present\r"
+    	echo -ne "Waiting 5 seconds. I will proceed to the next job since the file $PROJECTPATH/$file is already present\r"
         sleep 5
         continue
     fi
