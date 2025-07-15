@@ -81,7 +81,7 @@ Import-Csv $file_arg | foreach-object {
     
     if ($mailbox_exist) {
         if ($password) {
-            Write-Host "Changing password for $mailbox" -ForegroundColor Green
+            Write-Host "Changing password for $mailbox"
             $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password)
             $plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
             [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR)
