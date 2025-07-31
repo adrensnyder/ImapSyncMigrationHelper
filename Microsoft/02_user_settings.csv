@@ -1,4 +1,4 @@
 Account,Password,ForceChangePasswordNextSignIn,Language,DateFormat,TimeFormat,TimeZone
 user1@domain.com,Pass1234,false,en-us,yyyy-MM-dd,HH:mm,Eastern Standard Time
 user2@domain.com,Pass1234,true,en-us,yyyy-MM-dd,HH:mm,Eastern Standard Time
-user2@domain.com,,false,en-us,yyyy-MM-dd,HH:mm,Eastern Standard Time
+user3@domain.com,,false,en-us,yyyy-MM-dd,HH:mm,Eastern Standard Time
