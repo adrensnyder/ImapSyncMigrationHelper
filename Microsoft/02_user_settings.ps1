@@ -1,4 +1,4 @@
-﻿###################################################################
+###################################################################
 # Copyright (c) 2023 AdrenSnyder https://github.com/adrensnyder
 #
 # Permission is hereby granted, free of charge, to any person
@@ -80,22 +80,32 @@ Import-Csv $file_arg | foreach-object {
     $mailbox_exist = get-mailbox -identity $mailbox -ErrorAction SilentlyContinue
     
     if ($mailbox_exist) {
+
+        $forceChange = [System.Convert]::ToBoolean($($_.ForceChangePasswordNextSignIn))
+
+        $passwordProfile = @{}
+        $passwordChange = $false
+
         if ($password) {
-            Write-Host "Changing password for $mailbox"
             $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password)
             $plainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
             [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR)
 
+            $passwordChange = $true
+
             $passwordProfile = @{
                 password = $plainPassword
-                forceChangePasswordNextSignIn = $false
+                forceChangePasswordNextSignIn = $forceChange
             }
 
-            Update-MgUser -UserId $mailbox -PasswordProfile $passwordProfile
-            
-        } else {            
-            Write-Host "Password not changed"
+        } else {
+            $passwordProfile = @{
+                forceChangePasswordNextSignIn = $forceChange
+            }            
         }
+
+        Write-Host "Applying password settings for $mailbox (ApplyNewPassword: $passwordChange, forceChangePasswordNextSignIn: $forceChange)"
+        Update-MgUser -UserId $mailbox -PasswordProfile $passwordProfile
         Write-Host "Changing the language for $mailbox"
         Get-Mailbox $mailbox | Get-MailboxRegionalConfiguration | Set-MailboxRegionalConfiguration -Language $Language -DateFormat $DateFormat -TimeFormat $TimeFormat -TimeZone $TimeZone -LocalizeDefaultFolderName:$true
         Write-Host "Changing attachments size for $mailbox"
