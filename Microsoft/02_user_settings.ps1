@@ -104,13 +104,13 @@ Import-Csv $file_arg | foreach-object {
             }            
         }
 
-        Write-Host "Applying password settings for $mailbox (ApplyNewPassword: $passwordChange, forceChangePasswordNextSignIn: $forceChange)"
+        Write-Host "Applying password settings (ApplyNewPassword: $passwordChange, forceChangePasswordNextSignIn: $forceChange)"
         Update-MgUser -UserId $mailbox -PasswordProfile $passwordProfile
-        Write-Host "Changing the language for $mailbox"
+        Write-Host "Changing the language"
         Get-Mailbox $mailbox | Get-MailboxRegionalConfiguration | Set-MailboxRegionalConfiguration -Language $Language -DateFormat $DateFormat -TimeFormat $TimeFormat -TimeZone $TimeZone -LocalizeDefaultFolderName:$true
-        Write-Host "Changing attachments size for $mailbox"
+        Write-Host "Changing attachments size"
         Set-Mailbox -Identity $mailbox -MaxReceiveSize $maxSize -MaxSendSize $maxSize
-        Write-Host "Changing Retain Deleted Item for $mailbox"
+        Write-Host "Changing Retain Deleted Item"
         Set-Mailbox -Identity $mailbox -RetainDeletedItemsFor $retention
     } else {
         Write-Host -Foreground Red "The account $mailbox not have a mailbox"
