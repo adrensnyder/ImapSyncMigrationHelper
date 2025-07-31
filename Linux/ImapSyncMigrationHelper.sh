@@ -342,7 +342,7 @@ for line in $VAR_CREDS; do
 	#	PASS_DEST_OK="'"'"'$PASS_DEST'"'"'"
 	#fi
 
-    # Creation of a pass files
+    # Creation of the pass files
     PASS_SOURCE_FILE="$PROJECTPATH/$EXEC_FOLDER/$FILE_RUN_BASE-PASS1-$MAIL_SOURCE.txt"
     echo $PASS_SOURCE_OK > $PASS_SOURCE_FILE
     PASS_DEST_FILE="$PROJECTPATH/$EXEC_FOLDER/$FILE_RUN_BASE-PASS2-$MAIL_SOURCE.txt"
