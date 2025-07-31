@@ -98,7 +98,7 @@ Import-Csv $file_arg | foreach-object {
         Set-Mailbox -Identity $Alias -MaxReceiveSize $maxSize -MaxSendSize $maxSize
         Start-Sleep -s 2
         Write-Host "Changing Retain Deleted Item for $Type $Alias"
-        Set-Mailbox -Identity $mailbox -RetainDeletedItemsFor $retention
+        Set-Mailbox -Identity $Alias -RetainDeletedItemsFor $retention
         Write-Host "Changing SentAs mailbox $Type $Alias"
         set-mailbox $Alias -MessageCopyForSentAsEnabled $True
         Start-Sleep -s 2
