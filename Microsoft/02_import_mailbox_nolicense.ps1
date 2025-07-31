@@ -67,9 +67,8 @@ Import-Csv $file_arg | foreach-object {
     $Name = $_.Name
     $Alias = $_.Alias
 
-    Write-Host "Creazione mailbox $Account con alias $Alias" -ForegroundColor Green
-    echo "New-Mailbox -Name ""$Name"" -Alias $Alias -MicrosoftOnlineServicesID $Account" > tmp_newmail.ps1
-    ./tmp_newmail.ps1
+    Write-Host "Creating mailbox $Account with alias $Alias" -ForegroundColor Green
+    New-Mailbox -Name "$Name" -Alias $Alias -MicrosoftOnlineServicesID $Account
     Start-Sleep -s 5
 }
 
