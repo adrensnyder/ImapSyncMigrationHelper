@@ -85,23 +85,23 @@ Import-Csv $file_arg | foreach-object {
     $TimeFormat = $_.TimeFormat
     $TimeZone = $_.TimeZone
 
-    Write-Host "- Start mailbox variations $Type $Alias" -ForegroundColor Green
-    Write-Host "Conversion to $type $Alias"    
+    Write-Host "- Start mailbox variations for $Type $Alias" -ForegroundColor Green
+    Write-Host "Conversion to $type"    
     Set-Mailbox $Alias -Type $Type
     Start-Sleep -s 2
     if ( $Type -eq "shared" ) {
-        Write-Host "Changing the language of $Type $Alias"    
+        Write-Host "Changing language"    
         Get-Mailbox $Alias | Get-MailboxRegionalConfiguration | Set-MailboxRegionalConfiguration -Language $Language -DateFormat $DateFormat -TimeFormat $TimeFormat -TimeZone $TimeZone -LocalizeDefaultFolderName:$true
         Start-Sleep -s 2
-        Write-Host "Changing attachments size for $Type $Alias"
+        Write-Host "Changing attachments size"
         Set-Mailbox -Identity $Alias -MaxReceiveSize $maxSize -MaxSendSize $maxSize
         Start-Sleep -s 2
-        Write-Host "Changing Retain Deleted Item for $Type $Alias"
+        Write-Host "Changing Retain Deleted Item"
         Set-Mailbox -Identity $Alias -RetainDeletedItemsFor $retention
-        Write-Host "Changing SentAs mailbox $Type $Alias"
+        Write-Host "Changing SentAs"
         set-mailbox $Alias -MessageCopyForSentAsEnabled $True
         Start-Sleep -s 2
-        Write-Host "Changing SendOnBehalf mailbox $Type $Alias"
+        Write-Host "Changing SendOnBehalf"
         set-mailbox $Alias -MessageCopyForSendOnBehalfEnabled $True
         Start-Sleep -s 2
     }
