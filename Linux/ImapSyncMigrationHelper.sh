@@ -333,26 +333,34 @@ for line in $VAR_CREDS; do
         fi
 
 	PASS_SOURCE_OK="\"$PASS_SOURCE\""
-	if [ "$PASS_COMP_ORIG" -eq "1" ]; then
-		PASS_SOURCE_OK="'"'"'$PASS_SOURCE'"'"'"
-	fi
+	#if [ "$PASS_COMP_ORIG" -eq "1" ]; then
+	#	PASS_SOURCE_OK="'"'"'$PASS_SOURCE'"'"'"
+	#fi
+
 	PASS_DEST_OK="\"$PASS_DEST\""
-	if [ "$PASS_COMP_DEST" -eq "1" ]; then
-		PASS_DEST_OK="'"'"'$PASS_DEST'"'"'"
-	fi
+	#if [ "$PASS_COMP_DEST" -eq "1" ]; then
+	#	PASS_DEST_OK="'"'"'$PASS_DEST'"'"'"
+	#fi
+
+    # Creation of a pass files
+    PASS_SOURCE_FILE="$PROJECTPATH/$EXEC_FOLDER/$FILE_RUN_BASE-PASS1-$MAIL_SOURCE.txt"
+    echo $PASS_SOURCE_OK > $PASS_SOURCE_FILE
+    PASS_DEST_FILE="$PROJECTPATH/$EXEC_FOLDER/$FILE_RUN_BASE-PASS2-$MAIL_SOURCE.txt"
+    echo $PASS_DEST_OK > $PASS_DEST_FILE
 
     # Creation of a file with the imapsync startup string
-    echo "#!/bin/sh" > "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
-    echo "" >> "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
-	echo 'DATE_NOW=$(date +"%Y-%m-%d_%H-%M")' >> "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
-    echo "$IMAPSYNC $PARAM $PARAM_CUSTOM --host1 $IP_SOURCE --user1 \"$MAIL_SOURCE$DOMAIN_SOURCE\" --password1 $PASS_SOURCE_OK $SSL_TAG_SOURCE $TLS_TAG_SOURCE $PORT_TAG_SOURCE --host2 $IP_DEST --user2 \"$MAIL_DEST$DOMAIN_DEST\" --password2 $PASS_DEST_OK $SSL_TAG_DEST $TLS_TAG_DEST $PORT_TAG_DEST --logdir $LOGDIR --logfile \"$LOGFILE$MAIL_SOURCE""_$COUNT"'%$DATE_NOW'\" >> "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
+    WORKFILE="$EXEC_FOLDER/$FILE_RUN_BASE-WORK-$MAIL_SOURCE.sh"
+    echo "#!/bin/sh" > "$WORKFILE"
+    echo "" >> "$WORKFILE"
+	echo 'DATE_NOW=$(date +"%Y-%m-%d_%H-%M")' >> "$WORKFILE"
+    echo "$IMAPSYNC $PARAM $PARAM_CUSTOM --host1 $IP_SOURCE --user1 \"$MAIL_SOURCE$DOMAIN_SOURCE\" --passfile1 $PASS_SOURCE_FILE $SSL_TAG_SOURCE $TLS_TAG_SOURCE $PORT_TAG_SOURCE --host2 $IP_DEST --user2 \"$MAIL_DEST$DOMAIN_DEST\" --passfile2 $PASS_DEST_FILE $SSL_TAG_DEST $TLS_TAG_DEST $PORT_TAG_DEST --logdir $LOGDIR --logfile \"$LOGFILE$MAIL_SOURCE""_$COUNT"'%$DATE_NOW'\" >> "$WORKFILE"
 
     # Granting execution rights for the file
-    chmod 777 "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
+    chmod 777 "$WORKFILE"
 
     if [ "$TOKEN" -eq "1" ]; then
 
-    	$CAT << EOF >> "$EXEC_FOLDER/$FILE_RUN_BASE-$MAIL_SOURCE.sh"
+    	$CAT << EOF >> "$WORKFILE"
 
 TEST=\`ps auxw |grep ATE-$MAIL_SOURCE.sh|grep -v grep| wc -l\`
 
@@ -417,8 +425,8 @@ EOF
 
 done
 
-LIST_RUN=`ls -1 "$EXEC_FOLDER/"*  |grep -v '\-ATE\-'`
-LIST_RUN_COUNT=`ls -1 "$EXEC_FOLDER/"*  |grep -v '\-ATE\-' |wc -l`
+LIST_RUN=`ls -1 "$EXEC_FOLDER/"*  |grep '\-WORK\-'`
+LIST_RUN_COUNT=`ls -1 "$EXEC_FOLDER/"*  |grep '\-WORK\-' |wc -l`
 COUNT=0
 
 for file in $LIST_RUN; do
