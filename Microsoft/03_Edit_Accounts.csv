@@ -1,0 +1,4 @@
+Account,NewAccount,MoveToAlias,Name,LastName,DisplayName
+john.smith@old.com,john.smith@new.com,true,,,
+emma.johnson@old.com,lauren.smith@old.com,false,Lauren,Smith,Lauren Smith
+liam.wilson@old.com,,,,Liam Wilson - CEO
