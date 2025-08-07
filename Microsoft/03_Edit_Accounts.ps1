@@ -33,6 +33,7 @@ if ([string]::IsNullOrEmpty($file_arg)) {
 }
 
 Write-Host "Check that the file $file_arg has been saved in UTF-8 format"
+Write-Host "NOTE: This script CANNOT clear FirstName or LastName fields. If you need to remove them, please use the Microsoft 365 admin web interface."
 Pause
 
 $directory = Split-Path -Path $args[0] -Parent
@@ -54,7 +55,7 @@ foreach ($user in $list_users) {
     $username = $user.Account
     $username_new = $user.NewAccount
     $move_to_alias = $user.MoveToAlias -eq "true"
-    $name = $user.Name
+    $firstname = $user.FirstName
     $lastname = $user.LastName
     $displayName = $user.DisplayName
 
@@ -94,9 +95,11 @@ foreach ($user in $list_users) {
     }
 
     $userParams = @{}
-    if (![string]::IsNullOrWhiteSpace($name)) {
-        Write-Host "Changing Name to $name" -ForegroundColor Green
-        $userParams["Name"] = $name
+
+
+    if (![string]::IsNullOrWhiteSpace($firstname)) {
+        Write-Host "Changing Name to $firstname" -ForegroundColor Green
+        $userParams["FirstName"] = $firstname
     }
     if (![string]::IsNullOrWhiteSpace($lastname)) {
         Write-Host "Changing Last Name to $lastname" -ForegroundColor Green
@@ -108,7 +111,12 @@ foreach ($user in $list_users) {
     }
 
     if ($userParams.Count -gt 0) {
+        Write-Host "User parameters to be updated:"
+        $userParams.GetEnumerator() | ForEach-Object { Write-Host " - $($_.Key): $($_.Value)" }
+
         Set-User -Confirm:$false -Identity $currentIdentity @userParams
+        Get-User -Identity $currentIdentity | Select-Object DisplayName, FirstName, LastName
+
     }
 }
 
