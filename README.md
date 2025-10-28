@@ -13,6 +13,9 @@ Personally, I follow these steps:
 ```
 yum -y install imapsync
 
+# For Rocky 9
+yum -y install perl-App-cpanminus
+
 cd /root
 
 yum -y install perl-App-cpanminus \
