@@ -332,21 +332,21 @@ for line in $VAR_CREDS; do
                 exit 1
         fi
 
-	PASS_SOURCE_OK="\"$PASS_SOURCE\""
+	#PASS_SOURCE_OK="\"$PASS_SOURCE\""
 	#if [ "$PASS_COMP_ORIG" -eq "1" ]; then
 	#	PASS_SOURCE_OK="'"'"'$PASS_SOURCE'"'"'"
 	#fi
 
-	PASS_DEST_OK="\"$PASS_DEST\""
+	#PASS_DEST_OK="\"$PASS_DEST\""
 	#if [ "$PASS_COMP_DEST" -eq "1" ]; then
 	#	PASS_DEST_OK="'"'"'$PASS_DEST'"'"'"
 	#fi
 
     # Creation of the pass files
     PASS_SOURCE_FILE="$PROJECTPATH/$EXEC_FOLDER/$FILE_RUN_BASE-PASS1-$MAIL_SOURCE.txt"
-    echo $PASS_SOURCE_OK > $PASS_SOURCE_FILE
+    echo $PASS_SOURCE > $PASS_SOURCE_FILE
     PASS_DEST_FILE="$PROJECTPATH/$EXEC_FOLDER/$FILE_RUN_BASE-PASS2-$MAIL_SOURCE.txt"
-    echo $PASS_DEST_OK > $PASS_DEST_FILE
+    echo $PASS_DEST > $PASS_DEST_FILE
 
     # Creation of a file with the imapsync startup string
     WORKFILE="$EXEC_FOLDER/$FILE_RUN_BASE-WORK-$MAIL_SOURCE.sh"
