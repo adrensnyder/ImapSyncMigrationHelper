@@ -56,7 +56,14 @@ Write-Host -ForegroundColor Green "Disconnect Graph"
 Disconnect-MgGraph
 Start-Sleep -Seconds 5
 Write-Host -ForegroundColor Green "Connect Graph"
-Connect-MgGraph "User.ReadWrite", "User-PasswordProfile.ReadWrite.All", "User-Mail.ReadWrite.All", "Directory.ReadWrite.All", "DeviceManagementServiceConfig.ReadWrite.All", "DeviceManagementManagedDevices.ReadWrite.All", "DeviceManagementConfiguration.ReadWrite.All"  -ContextScope Process
+Connect-MgGraph "User.ReadWrite", `
+  "User-PasswordProfile.ReadWrite.All", `
+  "User-Mail.ReadWrite.All", "Directory.ReadWrite.All", `
+  "DeviceManagementServiceConfig.ReadWrite.All", `
+  "DeviceManagementManagedDevices.ReadWrite.All", `
+  "DeviceManagementConfiguration.ReadWrite.All", `
+  "Organization.ReadWrite.All" `
+  -ContextScope Process
 
 try {
     $org = Get-MgOrganization | Select-Object -First 1
