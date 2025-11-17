@@ -29,19 +29,63 @@ $dest_domain = "domain.dest"
 $list_users = get-mailbox |select-object WindowsLiveID
 $username = ""
 
-foreach ($username_obj in $list_users) { 
-	if ($username_obj -ne $null) {
-		Write-Host " - Starting the variations for $username" -ForegroundColor Red
-		$username = $($username_obj.WindowsLiveID)
-		$username_new = $username.replace($orig_domain,$dest_domain)
-		Write-Host "Added alias $username_new on the account $username" -ForegroundColor Green
-		Set-Mailbox -identity $username -EmailAddresses @{Add=$username_new}
-		Write-Host "Change in $username_new the WindowsEmailAddress value" -ForegroundColor Green
-		Set-Mailbox -Identity $username -WindowsEmailAddress $username_new
-		Write-Host "Change in $username_new the MicrosoftOnlineServicesID value" -ForegroundColor Green
-		Set-Mailbox -Identity $username -MicrosoftOnlineServicesID $username_new
-	}
+param(
+    [string]$orig_domain = "domain.orig",
+    [string]$dest_domain = "domain.dest",
+	# Set to default the destination domain
+    [int]$default = 1
+)
+
+$list_users = Get-Mailbox -ResultSize Unlimited |
+    Select-Object Identity, DisplayName, WindowsLiveID
+
+foreach ($user in $list_users) {
+
+    $username = $user.WindowsLiveID
+
+    if ([string]::IsNullOrWhiteSpace($username)) {
+        continue
+    }
+
+    if ($username -notlike "*$orig_domain*") {
+        continue
+    }
+
+    Write-Host " - Starting the variations for $username" -ForegroundColor Red
+    $username_new = $username.Replace($orig_domain, $dest_domain)
+
+    Write-Host "Added alias $username_new on the account $username" -ForegroundColor Green
+    Set-Mailbox -Identity $user.Identity -EmailAddresses @{ Add = $username_new }
+
+    Write-Host "Change in $username_new the WindowsEmailAddress value" -ForegroundColor Green
+    Set-Mailbox -Identity $user.Identity -WindowsEmailAddress $username_new
+
+    Write-Host "Change in $username_new the MicrosoftOnlineServicesID value" -ForegroundColor Green
+    Set-Mailbox -Identity $user.Identity -MicrosoftOnlineServicesID $username_new
+
+    if ($default -eq 1) {
+
+        $mbx = Get-Mailbox -Identity $user.Identity
+        $newPrimary = "SMTP:$username_new"
+        $otherAddresses = @()
+
+        foreach ($addr in $mbx.EmailAddresses) {
+            $addrString = $addr.ToString()
+
+            if ($addrString.ToLower().EndsWith($username_new.ToLower())) {
+                continue
+            }
+
+            $otherAddresses += $addrString
+        }
+
+        $allAddresses = @($newPrimary) + $otherAddresses
+
+        Write-Host "Set $username_new as PrimarySmtpAddress for $($user.Identity)" -ForegroundColor Yellow
+        Set-Mailbox -Identity $user.Identity -EmailAddresses $allAddresses
+    }
 }
+
 
 
 
