@@ -24,11 +24,6 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 ###################################################################
 
-$orig_domain = "domain.orig"
-$dest_domain = "domain.dest"
-$list_users = get-mailbox |select-object WindowsLiveID
-$username = ""
-
 param(
     [string]$orig_domain = "domain.orig",
     [string]$dest_domain = "domain.dest",
