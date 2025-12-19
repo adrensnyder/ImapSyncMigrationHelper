@@ -60,6 +60,7 @@ NOTSTRICT_COUNT=0
 NOTFINISHED_COUNT=0
 
 LASTLOGS=()  # inizializza array
+echo ""
 echo -e "- ${RED}File list${NC}"
 
 for file in $LIST_UNIQUE; do
@@ -69,7 +70,6 @@ for file in $LIST_UNIQUE; do
 
     echo "$file -> $LASTLOG"
 done
-echo "----"
 
 for file in "${LASTLOGS[@]}"; do
 
@@ -101,7 +101,7 @@ for file in "${LASTLOGS[@]}"; do
     GOOD_NOTFINISHED=`grep -a "Exiting with return value" $file |wc -l`
     let "ALL_GOOD_NOTFINISHED=ALL_GOOD_NOTFINISHED+GOOD_NOTFINISHED"
 done
-
+echo ""
 echo -e "- ${RED}General Stats${NC}"
 echo "Total emails in check: $COUNT_LIST"
 echo "Emails with all messages copied and in sync:"
@@ -111,53 +111,7 @@ echo "Emails copied but with some additional messages in host2 (Only if a unique
 echo "Emails with some elements not copied: $NOTFINISHED_COUNT"
 echo "Total emails copied, complete or with errors: $ALL_GOOD_NOTFINISHED"
 
-echo "----"
-echo -e "${RED}Emails not completed:${NC}"
-
-for file in "${LASTLOGS[@]}"; do
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "The sync is not finished" "$file"
-done
-
-echo "----"
-echo -e "${RED}- CHECK ERROR LOGIN${NC}"
-
-for file in "${LASTLOGS[@]}"; do
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "Error login" "$file"
-done
-echo "----"
-echo -e "${RED}- CHECK BAD USER (O365)${NC}"
-
-for file in "${LASTLOGS[@]}"; do
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "bad user" "$file"
-done
-echo "----"
-echo -e "${RED}- CHECK EX_OK${NC}"
-EXOK_COUNT=0
-
-for file in "${LASTLOGS[@]}"; do
-    EXOK=`grep -a -i "EX_OK" "$file"|wc -l`
-    if [ "$EXOK" -gt "0" ]; then
-        let "EXOK_COUNT=EXOK_COUNT+1"
-    fi
-done
-echo $EXOK_COUNT
-echo -e "${RED}- CHECK EXIT_ERR_APPEND${NC}"
-
-for file in "${LASTLOGS[@]}"; do
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "EXIT_ERR" "$file"
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "Maximum number of errors.*reached|reached.*Maximum number of errors" "$file"
-done
-echo -e "${RED}- CHECK Err${NC}"
-
-for file in "${LASTLOGS[@]}"; do
-    #GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -E 'msg.*Err |Err .*msg' "$file"
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -P '^Err ' "$file"
-done
-echo -e "${RED}- CHECK skipped${NC}"
-
-for file in "${LASTLOGS[@]}"; do
-    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -E 'msg.*skipped|skipped.*msg' "$file"
-done
+echo ""
 echo -e "${RED}- CHECK Status${NC}"
 
 for file in "${LASTLOGS[@]}"; do
@@ -174,4 +128,60 @@ for file in "${LASTLOGS[@]}"; do
                 GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -E 'Exiting with return value' "$file"
         fi
 
+done
+
+echo ""
+echo -e "${RED}Emails not completed:${NC}"
+
+for file in "${LASTLOGS[@]}"; do
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "The sync is not finished" "$file"
+done
+
+echo ""
+echo -e "${RED}- CHECK ERROR LOGIN${NC}"
+
+for file in "${LASTLOGS[@]}"; do
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "Error login" "$file"
+done
+
+echo ""
+echo -e "${RED}- CHECK BAD USER (O365)${NC}"
+
+for file in "${LASTLOGS[@]}"; do
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "bad user" "$file"
+done
+
+echo ""
+echo -e "${RED}- CHECK EX_OK${NC}"
+EXOK_COUNT=0
+
+for file in "${LASTLOGS[@]}"; do
+    EXOK=`grep -a -i "EX_OK" "$file"|wc -l`
+    if [ "$EXOK" -gt "0" ]; then
+        let "EXOK_COUNT=EXOK_COUNT+1"
+    fi
+done
+echo $EXOK_COUNT
+
+echo ""
+echo -e "${RED}- CHECK EXIT_ERR_APPEND${NC}"
+
+for file in "${LASTLOGS[@]}"; do
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "EXIT_ERR" "$file"
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn "Maximum number of errors.*reached|reached.*Maximum number of errors" "$file"
+done
+
+echo ""
+echo -e "${RED}- CHECK skipped${NC}"
+
+for file in "${LASTLOGS[@]}"; do
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -E 'msg.*skipped|skipped.*msg' "$file"
+done
+
+echo ""
+echo -e "${RED}- CHECK Err${NC}"
+
+for file in "${LASTLOGS[@]}"; do
+    #GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -E 'msg.*Err |Err .*msg' "$file"
+    GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -P '^Err ' "$file"
 done
