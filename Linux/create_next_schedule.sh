@@ -60,13 +60,25 @@ TOKEN_NAME=$1
 # Program
 me=`basename "$0"`
 PROJECTPATH="$JOBPATH/$JOBNAME"
+
+cd $PROJECTPATH
+
+MUTTSCRIPT="$PROJECTPATH/$MUTT"
+
+if [ ! -x $TOKEN_NAME ]; then
+        if [ ! -f "$PROJECTPATH/$TOKEN_NAME"_"$MUTT" ]; then
+                cp "$PROJECTPATH/$MUTT" "$PROJECTPATH/$TOKEN_NAME"_"$MUTT"
+                echo "File $PROJECTPATH/$TOKEN_NAME"_"$MUTT not exist. It has been created and have to be configured"
+                exit
+        fi
+        MUTTSCRIPT="$PROJECTPATH/$TOKEN_NAME"_"$MUTT"
+fi
+
 if [[ "X$TOKEN_NAME" == "X" ]]; then
 	TOKEN_NAME=$JOBNAME
 fi
 RETOKEN=retoken_$TOKEN_NAME
-MUTT=$PROJECTPATH/$MUTT
-
-cd $PROJECTPATH
+MUTTSCRIPT="$PROJECTPATH/$MUTT"
 
 DATETIME=`jq '.access_token_expiration' "$TOKEN_NAME"_token_auth`
 
@@ -88,16 +100,16 @@ TIME="$TIMEH:$TIMEM"
 #echo $TIME $DATE
 
 # Create the token immediately
-$PYTHON $MUTT "$TOKEN_NAME"_token_auth > $PROJECTPATH/"$TOKEN_NAME"_token_imapsync
+$PYTHON $MUTTSCRIPT "$TOKEN_NAME"_token_auth > $PROJECTPATH/"$TOKEN_NAME"_token_imapsync
 
 # (retoken) Request the token immediately
-echo "$PYTHON $MUTT ""$TOKEN_NAME""_token_auth > $PROJECTPATH/""$TOKEN_NAME""_token_imapsync" > $PROJECTPATH/$RETOKEN.sh
+echo "$PYTHON $MUTTSCRIPT ""$TOKEN_NAME""_token_auth > $PROJECTPATH/""$TOKEN_NAME""_token_imapsync" > $PROJECTPATH/$RETOKEN.sh
 # (retoken) Request the token after $TIMES seconds
 echo "sleep $TIMES" >> $PROJECTPATH/$RETOKEN.sh
-echo "$PYTHON $MUTT ""$TOKEN_NAME""_token_auth > $PROJECTPATH/""$TOKEN_NAME""_token_imapsync" >> $PROJECTPATH/$RETOKEN.sh
+echo "$PYTHON $MUTTSCRIPT ""$TOKEN_NAME""_token_auth > $PROJECTPATH/""$TOKEN_NAME""_token_imapsync" >> $PROJECTPATH/$RETOKEN.sh
 # (retoken) Request the token again after 60 seconds for additional security
 echo sleep 60 >> $PROJECTPATH/$RETOKEN.sh
-echo "$PYTHON $MUTT ""$TOKEN_NAME""_token_auth > $PROJECTPATH/""$TOKEN_NAME""_token_imapsync" >> $PROJECTPATH/$RETOKEN.sh
+echo "$PYTHON $MUTTSCRIPT ""$TOKEN_NAME""_token_auth > $PROJECTPATH/""$TOKEN_NAME""_token_imapsync" >> $PROJECTPATH/$RETOKEN.sh
 # (retoken) Wait for 60 seconds before creating the new job
 echo sleep 60 >> $PROJECTPATH/$RETOKEN.sh
 # (retoken) Schedule the creation of the new at job
