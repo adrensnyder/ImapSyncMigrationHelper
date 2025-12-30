@@ -1,5 +1,5 @@
 ###################################################################
-# Copyright (c) 2023 AdrenSnyder https://github.com/adrensnyder
+# Copyright (c) 2025 AdrenSnyder https://github.com/adrensnyder
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -24,50 +24,100 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 ###################################################################
 
-$REPO = "PSGallery"
+[CmdletBinding()]
+param(
+    [switch]$ClearGraphTokenCache = $true,
+    [switch]$UseDeviceCodeAuth = $false,
+    [string[]]$GraphScopes = @(
+        "User.ReadWrite.All",
+        "Group.ReadWrite.All",
+        "Directory.ReadWrite.All"
+    )
+)
 
-function Install-Modules {
-    param (
-        [string]$Repo,
-        [string]$ModuleName
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+function Ensure-Module {
+    param(
+        [Parameter(Mandatory=$true)][string]$Name,
+        [string]$MinimumVersion = ""
     )
 
-    $REPO="PSGallery"
-    if (-not (Get-Module -Name $ModuleName -ListAvailable)) {
-        # install the module
-        Write-Host -ForegroundColor Green "Install $ModuleName"
-        Install-Module -Name $ModuleName -Force -AllowClobber -Scope CurrentUser -Repository $Repo
-    } else {
-        Write-Host -ForegroundColor Green "$ModuleName is already installed."
+    $mod = Get-Module -ListAvailable -Name $Name | Sort-Object Version -Descending | Select-Object -First 1
+    if (-not $mod) {
+        Write-Host "$Name is not installed. Installing..."
+        Install-Module $Name -Scope CurrentUser -Force -AllowClobber
+    }
+    elseif ($MinimumVersion -and ([version]$mod.Version -lt [version]$MinimumVersion)) {
+        Write-Host "$Name is installed but version $($mod.Version) < $MinimumVersion. Updating..."
+        Update-Module $Name -Force
+    }
+    else {
+        Write-Host "$Name is already installed."
     }
 }
 
-Install-Modules -Repo $REPO -ModuleName "ExchangeOnlineManagement"
-if (-not (Get-Module -ListAvailable -Name Microsoft.Graph)) {
-    Install-Module -Repo $REPO -Name Microsoft.Graph -Force -AllowClobber
+function Clear-GraphTokenCache {
+    Write-Host "Clearing Microsoft Graph token cache..."
+
+    $mgPath = Join-Path $env:USERPROFILE ".mg"
+    if (Test-Path $mgPath) {
+        Remove-Item $mgPath -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
+    $identityRoot = Join-Path $env:LOCALAPPDATA ".IdentityService"
+    if (Test-Path $identityRoot) {
+        Get-ChildItem -Path $identityRoot -Directory -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -like "mg*" } |
+            ForEach-Object {
+                Remove-Item $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            }
+    }
 }
 
-Write-Host -ForegroundColor Green "Import modules"
-Import-Module ExchangeOnlineManagement
-
-Write-Host -ForegroundColor Green "Connect ExchangeOnLine"
-Connect-ExchangeOnline -ShowProgress $true
-Write-Host -ForegroundColor Green "Disconnect Graph"
-Disconnect-MgGraph
-Start-Sleep -Seconds 5
-Write-Host -ForegroundColor Green "Connect Graph"
-Connect-MgGraph "User.ReadWrite", `
-  "User-PasswordProfile.ReadWrite.All", `
-  "User-Mail.ReadWrite.All", "Directory.ReadWrite.All", `
-  "DeviceManagementServiceConfig.ReadWrite.All", `
-  "DeviceManagementManagedDevices.ReadWrite.All", `
-  "DeviceManagementConfiguration.ReadWrite.All", `
-  "Organization.ReadWrite.All" `
-  -ContextScope Process
-
 try {
+    Ensure-Module -Name "ExchangeOnlineManagement"
+    Ensure-Module -Name "Microsoft.Graph.Authentication"
+
+    try { Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue | Out-Null } catch {}
+    try { Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null } catch {}
+
+    if ($ClearGraphTokenCache) {
+        Clear-GraphTokenCache
+    }
+
+    Write-Host "Connecting to Exchange Online..."
+    Connect-ExchangeOnline -ShowBanner:$false
+
+    Write-Host "Connecting to Microsoft Graph..."
+    $connectParams = @{
+        Scopes       = $GraphScopes
+        ContextScope = "Process"
+        NoWelcome    = $true
+    }
+
+    if ($UseDeviceCodeAuth) {
+        $connectParams["UseDeviceAuthentication"] = $true
+    }
+
+    Connect-MgGraph @connectParams
+
+    $ctx = Get-MgContext
     $org = Get-MgOrganization | Select-Object -First 1
-    Write-Host -ForegroundColor Green "Organization Display Name: $($org.DisplayName)"
-} catch {
-    Write-Error -ForegroundColor Red "Failed to retrieve organization info: $_"
+
+    Write-Host ""
+    Write-Host "------------------ ACTIVE CONNECTIONS ------------------"
+    Write-Host ("Graph Account      : {0}" -f $ctx.Account)
+    Write-Host ("Graph TenantId     : {0}" -f $ctx.TenantId)
+    Write-Host ("Graph Scopes       : {0}" -f ($ctx.Scopes -join ", "))
+    Write-Host ("Organization Name  : {0}" -f $org.DisplayName)
+    Write-Host ("Organization Id    : {0}" -f $org.Id)
+    Write-Host "--------------------------------------------------------"
+    Write-Host ""
+
+}
+catch {
+    Write-Error $_
+    throw
 }
