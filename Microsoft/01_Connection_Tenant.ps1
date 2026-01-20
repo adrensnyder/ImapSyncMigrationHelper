@@ -31,7 +31,8 @@ param(
     [string[]]$GraphScopes = @(
         "User.ReadWrite.All",
         "Group.ReadWrite.All",
-        "Directory.ReadWrite.All"
+        "Directory.ReadWrite.All",
+        "User-PasswordProfile.ReadWrite.All"
     )
 )
 
