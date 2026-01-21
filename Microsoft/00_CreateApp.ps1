@@ -61,9 +61,15 @@ Write-Host -ForegroundColor Green "- Disconnect from Graph"
 Disconnect-MgGraph
 Start-Sleep -Seconds 5
 Write-Host -ForegroundColor Green "- Connecting to 365 (Credentials will be requested multiple times)"
-Connect-MgGraph -Scopes "Application.ReadWrite.All", "DelegatedPermissionGrant.ReadWrite.All", "AppRoleAssignment.ReadWrite.All" -ContextScope Process
+Write-Host -ForegroundColor Green "- Connecting to 365 (Credentials will be requested multiple times)"
+Connect-MgGraph -Scopes `
+  "Application.ReadWrite.All", `
+  "DelegatedPermissionGrant.ReadWrite.All", `
+  "AppRoleAssignment.ReadWrite.All", `
+  "Organization.Read.All" `
+  -ContextScope Process
 
-$tenant = Get-MgOrganization | Select-Object -First 1
+$TenantId = (Get-MgContext).TenantId
 $TenantId = $tenant.Id
 $TenantDomain = ($tenant.VerifiedDomains | Where-Object { $_.IsDefault -eq $true }).Name
 $TenantOnMicrosoftDomain = ($tenant.VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft\.com$' }).Name
