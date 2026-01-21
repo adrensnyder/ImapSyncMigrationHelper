@@ -71,7 +71,6 @@ Connect-MgGraph -Scopes `
 # TenantId: sempre disponibile dal contesto
 $TenantId = (Get-MgContext).TenantId
 
-# Domini: prova a leggerli, ma non bloccare lo script se mancano permessi
 $TenantDomain = $null
 $TenantOnMicrosoftDomain = $null
 
@@ -82,7 +81,7 @@ try {
         $TenantOnMicrosoftDomain = ($tenant.VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft\.com$' }).Name
     }
 } catch {
-    Write-Warning "Impossibile leggere i domini del tenant via Get-MgOrganization (permessi insufficienti). Procedo senza TenantDomain/TenantOnMicrosoftCom."
+    Write-Warning "Insufficient persmissions to read domains from Get-MgOrganization. Proceed without TenantDomain/TenantOnMicrosoftCom."
 }
 
 Write-Host "Tenant (Directory) ID: $TenantId" -ForegroundColor Green
