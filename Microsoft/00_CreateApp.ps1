@@ -1,5 +1,5 @@
 ###################################################################
-# Copyright (c) 2023 AdrenSnyder https://github.com/adrensnyder
+# Copyright (c) 2025 AdrenSnyder https://github.com/adrensnyder
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -30,7 +30,7 @@ Write-Host -ForegroundColor Red "Copy the link changing it to http on firefox fo
 Pause
 
 # Variables
-$NameApp = "TenantManagement"
+$NameApp = "TenantManagement_Test"
 $REPO    = "PSGallery"
 
 # Modules
@@ -61,7 +61,6 @@ Write-Host -ForegroundColor Green "- Disconnect from Graph"
 Disconnect-MgGraph
 Start-Sleep -Seconds 5
 Write-Host -ForegroundColor Green "- Connecting to 365 (Credentials will be requested multiple times)"
-Write-Host -ForegroundColor Green "- Connecting to 365 (Credentials will be requested multiple times)"
 Connect-MgGraph -Scopes `
   "Application.ReadWrite.All", `
   "DelegatedPermissionGrant.ReadWrite.All", `
@@ -69,10 +68,22 @@ Connect-MgGraph -Scopes `
   "Organization.Read.All" `
   -ContextScope Process
 
+# TenantId: sempre disponibile dal contesto
 $TenantId = (Get-MgContext).TenantId
-$TenantId = $tenant.Id
-$TenantDomain = ($tenant.VerifiedDomains | Where-Object { $_.IsDefault -eq $true }).Name
-$TenantOnMicrosoftDomain = ($tenant.VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft\.com$' }).Name
+
+# Domini: prova a leggerli, ma non bloccare lo script se mancano permessi
+$TenantDomain = $null
+$TenantOnMicrosoftDomain = $null
+
+try {
+    $tenant = Get-MgOrganization | Select-Object -First 1
+    if ($tenant) {
+        $TenantDomain = ($tenant.VerifiedDomains | Where-Object { $_.IsDefault -eq $true }).Name
+        $TenantOnMicrosoftDomain = ($tenant.VerifiedDomains | Where-Object { $_.Name -match 'onmicrosoft\.com$' }).Name
+    }
+} catch {
+    Write-Warning "Impossibile leggere i domini del tenant via Get-MgOrganization (permessi insufficienti). Procedo senza TenantDomain/TenantOnMicrosoftCom."
+}
 
 Write-Host "Tenant (Directory) ID: $TenantId" -ForegroundColor Green
 
