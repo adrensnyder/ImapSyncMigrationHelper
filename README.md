@@ -1,9 +1,11 @@
 # ImapSync Migration Helper
-The purpose of these tools is to assist in migrating a mail system using ImapSync.
+The purpose of these tools is to assist in migrating email systems and automating related administrative tasks.
 
-Migration has also been tested to and from Microsoft 365.
-It has not been tested with GMAIL, and automation for creating the necessary App for access is also missing. 
-The token creation procedures are likely the same, but creating the required app for OAuth2 access needs verification.
+The repository includes:
+- Helper scripts for IMAP email migrations using ImapSync (Linux-based)
+- Automation scripts for Microsoft 365 tenant administration, written in PowerShell
+
+Microsoft 365 is supported both as a migration source and destination. A subset of the PowerShell scripts is specifically intended to support the migration workflow (authentication helpers and app registration), while the remaining scripts are designed for general tenant management tasks such as shared mailbox creation and administrative operations.
 
 ## Initial steps
 On a Linux server with at least Python 3.8 (Tested Redhat, Centos and Rocky), install ImapSync and update it to the latest version.
