@@ -1,11 +1,11 @@
 # ImapSync Migration Helper
-The purpose of these tools is to assist in migrating email systems and automating related administrative tasks.
+The purpose of these tools is to assist in migrating email systems and automating related administrative tasks.  
 
-The repository includes:
-- Helper scripts for IMAP email migrations using ImapSync (Linux-based)
-- Automation scripts for Microsoft 365 tenant administration, written in PowerShell
+The repository includes:  
+- Helper scripts for IMAP email migrations using ImapSync (Linux-based)  
+- Automation scripts for Microsoft 365 tenant administration, written in PowerShell  
 
-Microsoft 365 is supported both as a migration source and destination. A subset of the PowerShell scripts is specifically intended to support the migration workflow (authentication helpers and app registration), while the remaining scripts are designed for general tenant management tasks such as shared mailbox creation and administrative operations.
+Microsoft 365 is supported both as a migration source and destination. A subset of the PowerShell scripts is specifically intended to support the migration workflow (authentication helpers and app registration), while the remaining scripts are designed for general tenant management tasks such as shared mailbox creation and administrative operations.  
 
 ## Initial steps
 On a Linux server with at least Python 3.8 (Tested Redhat, Centos and Rocky), install ImapSync and update it to the latest version.
@@ -223,8 +223,9 @@ foreach ($timeZone in $allTimeZones) {
 }
 ```
 
-### GMAIL
-I have not tested this procedure with Gmail. You surely need to create an App and use mutt_oauth2 in a similar way as explained for 365. Probably the rest of the procedure will be the same.
+## Compatibility and notes
+Migration has been tested to and from Microsoft 365.  
+It has not been tested with Gmail. While the OAuth2 token creation process is likely similar, the automation required to create the necessary application for Gmail access has not been verified.  
 
 ## TODO
 NOTE: I program in my spare time but i will try to update those scripts asap.  
