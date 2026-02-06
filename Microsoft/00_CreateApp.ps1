@@ -30,7 +30,7 @@ Write-Host -ForegroundColor Red "Copy the link changing it to http on firefox fo
 Pause
 
 # Variables
-$NameApp = "TenantManagement_Test"
+$NameApp = "TenantManagement"
 $REPO    = "PSGallery"
 
 # Modules
