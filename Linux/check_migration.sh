@@ -186,7 +186,7 @@ done
 
 echo ""
 echo -e "${RED}- CHECK Err (split LOG path/account + extract fields)${NC}"
-echo "log_path|account|log_dt|LINE|PRE_ERR|ERRTAG|subject|date|size|flags|POST"
+echo "log_path|account|log_dt|LINE|PRE_ERR|ERRTAG|subject|date|size|flags|msgbox|POST"
 
 for file in "${LASTLOGS[@]}"; do
   GREP_COLORS='' grep -a --color=never -iHn 'Err ' "$file" \
@@ -221,29 +221,35 @@ for file in "${LASTLOGS[@]}"; do
             sub(/\/[^\/]*$/, "", path)
             if (path == p) path = ""
 
-            subject=""; date=""; size=""; flags=""
+            subject=""; date=""; size=""; flags=""; msgbox=""
 
             hs = match(post, /Subject:\[([^]]*)\]/, a)
             hd = match(post, /Date:\[([^]]*)\]/,    b)
             hz = match(post, /Size:\[([^]]*)\]/,    c)
             hf = match(post, /Flags:\[([^]]*)\]/,   d)
 
+            # Estrae la parte dopo "- msg " fino a "/" (es: "Sent Messages" da "- msg Sent Messages/970")
+            hm = match(post, /- msg[[:space:]]+([^\/]+)\//, e)
+
             if (hs) subject = a[1]
             if (hd) date    = b[1]
             if (hz) size    = c[1]
             if (hf) flags   = d[1]
+            if (hm) msgbox  = e[1]
 
             gsub(/["'\''"]/, "", subject)
             gsub(/["'\''"]/, "", date)
             gsub(/["'\''"]/, "", size)
             gsub(/["'\''"]/, "", flags)
+            gsub(/["'\''"]/, "", msgbox)
 
             subject = trim(subject)
             date    = trim(date)
             size    = trim(size)
             flags   = trim(flags)
+            msgbox  = trim(msgbox)
 
-            print path "|" last "|" log_dt "|" $2 "|" $3 "|" $4 "|" subject "|" date "|" size "|" flags "|" post
+            print path "|" last "|" log_dt "|" $2 "|" $3 "|" $4 "|" subject "|" date "|" size "|" flags "|" msgbox "|" post
           }
         '
     done
