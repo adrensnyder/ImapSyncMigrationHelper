@@ -185,3 +185,56 @@ for file in "${LASTLOGS[@]}"; do
     #GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -E 'msg.*Err |Err .*msg' "$file"
     GREP_COLORS='fn=01;34:ln=01;32:mt=01;35' grep -a --colour -iTHn -P '^Err ' "$file"
 done
+
+echo ""
+echo -e "${RED}- CHECK Err (parsed)${NC}"
+echo "LOG|LINE|PRE_ERR|ERRTAG|POST|subject|date|size|flags"
+
+for file in "${LASTLOGS[@]}"; do
+  GREP_COLORS='' grep -a --color=never -iHn 'Err ' "$file" \
+  | while IFS= read -r line; do
+      LOG=$(printf '%s' "$line" | cut -d: -f1)
+      LINENO=$(printf '%s' "$line" | cut -d: -f2)
+      REST=$(printf '%s' "$line" | cut -d: -f3-)
+
+      printf '%s\n' "$REST" \
+      | sed -E "s#^(.*)(:?Err[[:space:]]+[0-9]+/[0-9]+:)[[:space:]]*(.*)\$#${LOG}|${LINENO}|\1|\2|\3#" \
+      | sed -E '/\|:?Err[[:space:]]+[0-9]+\/[0-9]+:\|/!d' \
+      | awk -F'|' '
+          function trim(s){ sub(/^[[:space:]]+/, "", s); sub(/[[:space:]]+$/, "", s); return s }
+
+          {
+            # Ricostruisci POST se contiene altri "|"
+            post = $5
+            for (i=6; i<=NF; i++) post = post "|" $i
+
+            subject=""; date=""; size=""; flags=""
+
+            hs = match(post, /Subject:\[([^]]*)\]/, a)
+            hd = match(post, /Date:\[([^]]*)\]/,    b)
+            hz = match(post, /Size:\[([^]]*)\]/,    c)
+            hf = match(post, /Flags:\[([^]]*)\]/,   d)
+
+            if (hs) subject = a[1]
+            if (hd) date    = b[1]
+            if (hz) size    = c[1]
+            if (hf) flags   = d[1]
+
+            # Pulisci da doppi apici e apici singoli (solo nei campi estratti)
+            gsub(/["'\''"]/, "", subject)
+            gsub(/["'\''"]/, "", date)
+            gsub(/["'\''"]/, "", size)
+            gsub(/["'\''"]/, "", flags)
+
+            subject = trim(subject)
+            date    = trim(date)
+            size    = trim(size)
+            flags   = trim(flags)
+
+            # POST resta intatto
+            print $1 "|" $2 "|" $3 "|" $4 "|" subject "|" date "|" size "|" flags "|" post
+          }
+        '
+    done
+done
+
